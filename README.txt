@@ -1,0 +1,1 @@
+This is simple server emulator for a game called Conquer Online

@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkLibrary", "NetworkLibrary\NetworkLibrary.csproj", "{BF69C2E6-EAAC-4531-B269-057691B07774}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationServer", "AuthenticationServer\AuthenticationServer.csproj", "{5D7B852E-1354-4430-BC88-E4D6F5684FB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServer", "GameServer\GameServer.csproj", "{3F74CA99-BD18-482C-8945-BDA904FC58CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF69C2E6-EAAC-4531-B269-057691B07774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF69C2E6-EAAC-4531-B269-057691B07774}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF69C2E6-EAAC-4531-B269-057691B07774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF69C2E6-EAAC-4531-B269-057691B07774}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D7B852E-1354-4430-BC88-E4D6F5684FB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D7B852E-1354-4430-BC88-E4D6F5684FB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D7B852E-1354-4430-BC88-E4D6F5684FB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D7B852E-1354-4430-BC88-E4D6F5684FB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F74CA99-BD18-482C-8945-BDA904FC58CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F74CA99-BD18-482C-8945-BDA904FC58CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F74CA99-BD18-482C-8945-BDA904FC58CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F74CA99-BD18-482C-8945-BDA904FC58CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
