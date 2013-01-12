@@ -1,15 +1,18 @@
 ﻿using System;
-
+using System.Runtime.InteropServices;
 namespace NetworkLibrary
 {
     using System.Net.Sockets;
 
     public class WinsockClient : IDisposable
     {
+     
         private IPacketCipher Cipher;
         private ServerSocket Server;
         private Socket Connection;
         private byte[] Buffer;
+
+        public object Wrapper { get; set; }
 
         public WinsockClient(ServerSocket Server, Socket Connection, int BufferSize, IPacketCipher Cipher)
         {
@@ -25,7 +28,8 @@ namespace NetworkLibrary
             try
             {
                 if (Cipher != null)
-                    Cipher.Encrypt(Packet, Packet.Length);
+                    Cipher.Encrypt(Packet);
+
                 Connection.Send(Packet);
             }
             catch (Exception exception)
@@ -50,14 +54,19 @@ namespace NetworkLibrary
                 if (Size <= 0)
                 {
                     Server.Disconnect(this);
+                    
                 }
                 else
                 {
+
+                    byte[] Packet = new byte[Size];
+                    System.Buffer.BlockCopy(Buffer, 0, Packet, 0, Size);
+
                     if (Cipher != null)
-                        Cipher.Decrypt(Buffer, Size);
+                        Cipher.Decrypt(Packet);
 
                     if (Server.OnClientReceived != null)
-                        Server.OnClientReceived(this, Buffer, Size);
+                        Server.OnClientReceived(this, Packet, Size);
 
                     BeginReceive();
                 }
