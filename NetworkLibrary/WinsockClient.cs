@@ -11,7 +11,8 @@ namespace NetworkLibrary
         private ServerSocket Server;
         private Socket Connection;
         private byte[] Buffer;
-
+        private bool Disposed;
+       
         public object Wrapper { get; set; }
 
         public WinsockClient(ServerSocket Server, Socket Connection, int BufferSize, IPacketCipher Cipher)
@@ -21,6 +22,7 @@ namespace NetworkLibrary
             this.Cipher = Cipher;
 
             Buffer = new byte[BufferSize];
+            Disposed = false;
         }
 
         public void Send(byte[] Packet)
@@ -42,11 +44,16 @@ namespace NetworkLibrary
 
         public void BeginReceive()
         {
+            if (Disposed)
+                return;
+
             Connection.BeginReceive(Buffer, 0, Buffer.Length, SocketFlags.None, new AsyncCallback(AsyncReceiveCallback), null);
         }
 
         private void AsyncReceiveCallback(IAsyncResult result)
         {
+            if (Disposed) return;
+
             try
             {
                 SocketError Error;
@@ -54,7 +61,6 @@ namespace NetworkLibrary
                 if (Size <= 0)
                 {
                     Server.Disconnect(this);
-                    
                 }
                 else
                 {
@@ -65,6 +71,7 @@ namespace NetworkLibrary
                     if (Cipher != null)
                         Cipher.Decrypt(Packet);
 
+                  
                     if (Server.OnClientReceived != null)
                         Server.OnClientReceived(this, Packet, Size);
 
@@ -82,15 +89,25 @@ namespace NetworkLibrary
 
         public void Disconnect()
         {
-            Server.Disconnect(this);
+            if (Server.OnClientDisconnected != null)
+                Server.OnClientDisconnected(this, null);
+            Dispose();
+       
+            //Server.Disconnect(this);
         }
 
         public void Dispose()
         {
             if (Cipher != null)
+            {
                 Cipher.Dispose();
+            }
             if (Connection != null)
+            {
+                Connection.Close();
                 Connection.Dispose();
+            }
+            Disposed = true;
         }
     }
 }

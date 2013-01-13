@@ -51,5 +51,9 @@ namespace AuthenticationServer
         {
             Cipher.Decrypt(Packet);
         }
+        public void Disconnect()
+        {
+            Socket.Disconnect();
+        }
     }
 }

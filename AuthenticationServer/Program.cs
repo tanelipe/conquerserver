@@ -69,7 +69,7 @@ namespace AuthenticationServer
                                 }
                                 else
                                 {
-                                    SendAuthReject(Client);
+                                    Client.Disconnect();
                                 }
                             }
 
