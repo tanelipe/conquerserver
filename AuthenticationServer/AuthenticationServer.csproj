@@ -50,6 +50,7 @@
     <Compile Include="Database\AccountCtrl.cs" />
     <Compile Include="Database\DataCtrl.cs" />
     <Compile Include="Database\ServerCtrl.cs" />
+    <Compile Include="Packets\AuthMessage.cs" />
     <Compile Include="Packets\AuthReguest.cs" />
     <Compile Include="Network\AuthServerCipher.cs" />
     <Compile Include="Network\AuthServerSocket.cs" />

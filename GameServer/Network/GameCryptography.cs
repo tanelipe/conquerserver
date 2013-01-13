@@ -1,8 +1,8 @@
 ﻿using NetworkLibrary;
-namespace AuthenticationServer
+namespace GameServer
 {
 
-    public class AuthCryptography : IPacketCipher
+    public class GameCryptography : IPacketCipher
     {
         private byte[] KeyOne;
         private byte[] KeyTwo;
@@ -97,7 +97,7 @@ namespace AuthenticationServer
 
         public void Dispose()
         {
-            
+
         }
     }
 }

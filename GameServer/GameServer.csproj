@@ -42,7 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\GameClient.cs" />
+    <Compile Include="Network\GameCryptography.cs" />
     <Compile Include="Network\GameServerSocket.cs" />
+    <Compile Include="Packets\AuthMessage.cs" />
+    <Compile Include="Processors\PacketProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

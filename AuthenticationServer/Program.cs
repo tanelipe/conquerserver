@@ -69,7 +69,8 @@ namespace AuthenticationServer
                                 }
                                 else
                                 {
-                                    Client.Disconnect();
+                                    SendAuthReject(Client, InvalidCredentials());
+                                    //Client.Disconnect();
                                 }
                             }
 
@@ -101,14 +102,46 @@ namespace AuthenticationServer
             }
             Client.Send(Response, Response->Size);
         }
-        private static unsafe void SendAuthReject(AuthClient Client)
+
+
+        public static byte[] InvalidCredentials()
+        {
+            return new byte[] {
+                0xD5, 0xCA, 0xBA, 0xC5, 0xC3, 0xFB, 0xBB, 0xF2, 0xBF, 0xDA, 0xC1, 0xEE, 0xB4, 0xED         
+            };
+        }
+        public static byte[] ServerDown()
+        {
+            return new byte[] {
+                0xB7, 0xFE, 0xCE, 0xF1, 0xC6, 0xF7, 0xCE, 0xB4, 0xC6, 0xF4, 0xB6, 0xAF, 0x00, 0x00
+            };
+        }
+
+
+        private static unsafe void SendAuthReject(AuthClient Client, byte[] Payload)
         {
             AuthResponse* Response = stackalloc AuthResponse[1];
             Response->Size = (ushort)sizeof(AuthResponse);
             Response->Type = 0x41F;
-            Response->AccountID = 1;
-            Response->LoginToken = Response->AccountID;
+            Response->AccountID = 0;
+            Response->LoginToken = 1;
+            for (int i = 0; i < 16; i++)
+            {
+                if (i >= Payload.Length)
+                    Response->Address[i] = 0;
+                else
+                    Response->Address[i] = (sbyte)Payload[i];
+            }
             Client.Send(Response, Response->Size);
+        }
+
+        private static unsafe void HexDump(void* Packet, string Header, ushort Size, ushort Type)
+        {
+            byte[] Dump = new byte[Size];
+            byte* pPacket = (byte*)Packet;
+            for (int i = 0; i < Size; i++)
+                Dump[i] = pPacket[i];
+            HexDump(Dump, Header, Size, Type);
         }
 
         private static unsafe void HexDump(byte[] Packet, string Header, ushort Size, ushort Type)

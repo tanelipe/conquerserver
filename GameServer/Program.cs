@@ -4,17 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NetworkLibrary;
+using GameServer.Processors;
 namespace GameServer
 {
     class Program
     {
+        private static PacketProcessor PacketProcessor;   
         static void Main(string[] args)
         {
-            GameServerSocket Server = new GameServerSocket();
+            GameServerSocket Server = new GameServerSocket() ;
             Server.OnClientConnected = OnClientConnect;
             Server.OnClientDisconnected = OnClientDisconnect;
             Server.OnClientReceived = OnClientReceive;
             Server.Initialize();
+
+            PacketProcessor = new PacketProcessor();
 
             while (true)
             {
@@ -23,15 +27,16 @@ namespace GameServer
         }
         private static void OnClientConnect(WinsockClient Socket, object NullParam)
         {
-
+            Socket.Wrapper = new GameClient(Socket);
         }
         private static void OnClientDisconnect(WinsockClient Socket, object NullParam)
         {
-
+            GameClient Client = Socket.Wrapper as GameClient;
         }
         private static unsafe void OnClientReceive(WinsockClient Socket, byte[] Packet, int Length)
         {
-
+            GameClient Client = Socket.Wrapper as GameClient;
+            PacketProcessor.Process(Client, Packet);
         }
     }
 }
