@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -35,6 +35,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.82.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SQLite\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,10 +46,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\Character.cs" />
     <Compile Include="Clients\GameClient.cs" />
+    <Compile Include="Database\CharacterDataCtrl.cs" />
+    <Compile Include="Database\Database.cs" />
+    <Compile Include="Database\DataCtrl.cs" />
+    <Compile Include="Helpers\PacketConstructor.cs" />
+    <Compile Include="Kernel.cs" />
+    <Compile Include="Memory.cs" />
     <Compile Include="Network\GameCryptography.cs" />
     <Compile Include="Network\GameServerSocket.cs" />
     <Compile Include="Packets\AuthMessage.cs" />
+    <Compile Include="Packets\CharacterCreation.cs" />
+    <Compile Include="Packets\CharacterInformation.cs" />
+    <Compile Include="Packets\Chat.cs" />
+    <Compile Include="Packets\GeneralData.cs" />
     <Compile Include="Processors\PacketProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

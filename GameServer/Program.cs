@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using NetworkLibrary;
 using GameServer.Processors;
+using GameServer.Database;
 namespace GameServer
 {
     class Program
     {
-        private static PacketProcessor PacketProcessor;   
+        private static PacketProcessor PacketProcessor;
+        private static DatabaseManager Database;
         static void Main(string[] args)
         {
             GameServerSocket Server = new GameServerSocket() ;
@@ -18,7 +20,9 @@ namespace GameServer
             Server.OnClientReceived = OnClientReceive;
             Server.Initialize();
 
-            PacketProcessor = new PacketProcessor();
+            Database = new DatabaseManager();
+
+            PacketProcessor = new PacketProcessor(Database);
 
             while (true)
             {

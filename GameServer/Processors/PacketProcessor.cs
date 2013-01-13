@@ -3,15 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using GameServer.Database;
 namespace GameServer.Processors
 {
     public unsafe class PacketProcessor
     {
+        private DatabaseManager Database;
+
+        public PacketProcessor(DatabaseManager Database)
+        {
+            this.Database = Database;
+        }
+
         public void Process(GameClient Client, byte[] Packet)
         {
             Client.Decrypt(Packet);
-            HexDump(Packet, "Client -> Server");
+            Kernel.HexDump(Packet, "Client -> Server");
             
             fixed (byte* pPacket = Packet)
             {
@@ -20,9 +27,38 @@ namespace GameServer.Processors
 
                 switch (*Type)
                 {
+                    case 0x3E9: HandleCharacterCreation(Client, pPacket); break;
+                    case 0x3F2: HandleGeneralData(Client, pPacket); break;
                     case 0x41C: HandleTransfer(Client, pPacket); break;
                 }
             }
+        }
+        private unsafe void HandleGeneralData(GameClient Client, byte* pPacket)
+        {
+            GeneralData* Packet = (GeneralData*)pPacket;
+            switch (Packet->DataID)
+            {
+                case GeneralDataID.SetLocation:
+                    Packet->ValueA = 400;
+                    Packet->ValueB = 400;
+                    Packet->ValueD_High = 1002;
+                    Kernel.HexDump(Packet, Packet->Size, "SETLOCATION");
+                    //Client.Send(Packet, Packet->Size);
+                    break;
+            }
+        }
+        private unsafe void HandleCharacterCreation(GameClient Client, byte* pPacket)
+        {
+            CharacterCreation* Packet = (CharacterCreation*)pPacket;
+
+            string Username = new string(Packet->Account, 0, 16).Trim('\x00');
+            string Name = new string(Packet->Name, 0, 16).Trim('\x00');
+            string Password = new string(Packet->Password, 0, 16).Trim('\x00');
+
+
+            Database.CreateCharacter(Client, Packet->Model, Packet->Class, Name);
+            
+            Client.Disconnect();
         }
         private unsafe void HandleTransfer(GameClient Client, byte* Packet)
         {
@@ -34,59 +70,38 @@ namespace GameServer.Processors
 
             if (Token == Message->LoginToken)
             {
+                Client.UID = Message->AccountID;
 
+              
+                if (Database.GetCharacterData(Client))
+                {
+                    CharacterInformation* Information = PacketConstructor.CreateInformation(Client);
+                    Client.Send(Information, Information->Size);
+                    Memory.Free(Information);
+
+     
+                    Chat* Response = PacketConstructor.CreateChat("SYSTEM", "ALLUSERS", "ANSWER_OK");
+                    Response->ChatType = ChatType.LoginInformation;
+                    Response->ID = Message->AccountID;
+
+                    Client.Send(Response, Response->Size);
+                    Memory.Free(Response);      
+                }
+                else
+                {
+                    Chat* Response = PacketConstructor.CreateChat("SYSTEM", "ALLUSERS", "NEW_ROLE");
+                    Response->ChatType = ChatType.LoginInformation;
+                    Response->ID = Message->AccountID;
+                    Client.Send(Response, Response->Size);
+                    Memory.Free(Response);
+                }
+                Client.GenerateKeys(Message->LoginToken, Message->AccountID);
             }
             else
             {
                 Client.Disconnect();
             }
-
-            /*
-            Response->AccountID = Client.GetAccountID();
-
-            uint Token = Response->AccountID | 0xAABB;
-            Token = Response->AccountID << 8 | Response->AccountID;
-            Token ^= 0x4321;
-            Token = Token << 8 | Token;
-            Response->LoginToken = Token;
-
-             * */
         }
-        private unsafe void HexDump(byte[] Packet, string Header)
-        {
-            StringBuilder dump = new StringBuilder();
-
-            fixed (byte* pPacket = Packet)
-            {
-                ushort Size = *(ushort*)pPacket;
-                ushort Type = *(ushort*)(pPacket + 2);
-
-                dump.AppendLine(string.Format("[{0} Size: 0x{1:X4} Type: 0x{2:X4}]", Header, Size, Type));
-                for (int i = 0; i < Packet.Length; i += 16)
-                {
-                    for (int j = 0; j < 16; j++)
-                    {
-                        if (i + j < Packet.Length)
-                            dump.AppendFormat("{0:X2} ", Packet[i + j]);
-                        else
-                            dump.Append("   ");
-                    }
-                    dump.Append(" ; ");
-                    for (int j = 0; j < 16; j++)
-                    {
-                        if (i + j < Packet.Length)
-                        {
-                            char Value = (char)Packet[i + j];
-                            if (char.IsLetterOrDigit(Value))
-                                dump.Append(Value);
-                            else
-                                dump.Append(".");
-                        }
-                    }
-                    dump.AppendLine();
-                }
-            }
-            Console.WriteLine(dump.ToString());
-        }
+       
     }
 }
