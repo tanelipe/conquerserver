@@ -28,9 +28,18 @@ namespace GameServer.Processors
                 switch (*Type)
                 {
                     case 0x3E9: HandleCharacterCreation(Client, pPacket); break;
+                    case 0x3F1: HandleItemUsage(Client, pPacket); break;
                     case 0x3F2: HandleGeneralData(Client, pPacket); break;
                     case 0x41C: HandleTransfer(Client, pPacket); break;
                 }
+            }
+        }
+        private unsafe void HandleItemUsage(GameClient Client, byte* pPacket)
+        {
+            ItemUsage* Packet = (ItemUsage*)pPacket;
+            switch (Packet->UsageType)
+            {
+                case 0x1B: Client.Send(Packet, Packet->Size); break;
             }
         }
         private unsafe void HandleGeneralData(GameClient Client, byte* pPacket)
@@ -42,8 +51,7 @@ namespace GameServer.Processors
                     Packet->ValueA = 400;
                     Packet->ValueB = 400;
                     Packet->ValueD_High = 1002;
-                    Kernel.HexDump(Packet, Packet->Size, "SETLOCATION");
-                    //Client.Send(Packet, Packet->Size);
+                    Client.Send(Packet, Packet->Size);
                     break;
             }
         }
@@ -72,20 +80,18 @@ namespace GameServer.Processors
             {
                 Client.UID = Message->AccountID;
 
-              
+                Client.GenerateKeys(Message->LoginToken, Message->AccountID);
                 if (Database.GetCharacterData(Client))
                 {
-                    CharacterInformation* Information = PacketConstructor.CreateInformation(Client);
-                    Client.Send(Information, Information->Size);
-                    Memory.Free(Information);
-
-     
                     Chat* Response = PacketConstructor.CreateChat("SYSTEM", "ALLUSERS", "ANSWER_OK");
                     Response->ChatType = ChatType.LoginInformation;
                     Response->ID = Message->AccountID;
-
                     Client.Send(Response, Response->Size);
-                    Memory.Free(Response);      
+                    Memory.Free(Response);  
+
+                    CharacterInformation* Information = PacketConstructor.CreateInformation(Client);
+                    Client.Send(Information, Information->Size);
+                    Memory.Free(Information);     
                 }
                 else
                 {
@@ -95,7 +101,7 @@ namespace GameServer.Processors
                     Client.Send(Response, Response->Size);
                     Memory.Free(Response);
                 }
-                Client.GenerateKeys(Message->LoginToken, Message->AccountID);
+
             }
             else
             {

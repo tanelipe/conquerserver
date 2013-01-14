@@ -61,6 +61,7 @@
     <Compile Include="Packets\CharacterInformation.cs" />
     <Compile Include="Packets\Chat.cs" />
     <Compile Include="Packets\GeneralData.cs" />
+    <Compile Include="Packets\ItemUsage.cs" />
     <Compile Include="Processors\PacketProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
