@@ -21,6 +21,9 @@ namespace GameServer
             Server.Initialize();
 
             Database = new DatabaseManager();
+#if WIPE_DATABASE
+            Database.DropCharacterTable();   
+#endif
 
             PacketProcessor = new PacketProcessor(Database);
 
@@ -36,10 +39,12 @@ namespace GameServer
         private static void OnClientDisconnect(WinsockClient Socket, object NullParam)
         {
             GameClient Client = Socket.Wrapper as GameClient;
+            Database.SaveCharacter(Client);
         }
         private static unsafe void OnClientReceive(WinsockClient Socket, byte[] Packet, int Length)
         {
             GameClient Client = Socket.Wrapper as GameClient;
+            Client.Decrypt(Packet);
             PacketProcessor.Process(Client, Packet);
         }
     }

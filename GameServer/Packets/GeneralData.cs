@@ -36,36 +36,34 @@ namespace GameServer
     }
     public enum GeneralDataID : uint
     {
-        ViewEquipment = 0xAD,//173
-        Hotkeys = 0x8A,//138
-        Entity = 0xA2,//162
-        //0x66 = 102 <- Newer client maybe? D:
-        //SpawnEntity = 0x89,//137 (SAME AS SETLOCATION)
-        RemoveEntity = 0x8D,//141
-        ConfirmFriends = 0x8B,//139
-        EnterPortal = 0x82,//130
-        ChangeMap = 0x83,//131
-        Revive = 0x94,//148
+        ViewEquipment = 0xAD,
+        Hotkeys = 0x8A,
+        Entity = 0xA2,
+        RemoveEntity = 0x8D,
+        ConfirmFriends = 0x8B,
+        EnterPortal = 0x82,
+        ChangeMap = 0x83,
+        Revive = 0x94,
         LevelUp = 0x92,
-        DeleteCharacter = 0x95,//149
-        ConfirmSpells = 0x96,//150
-        ConfirmGuild = 0x97,//151
-        ChangePKMode = 0x98,//152
-        CompleteLogin = 0x99,//153
-        Dead = 0x9A,//154
-        StartVend = 0xA7, //167 
-        ChangeAngle = 0x7C,//124
-        ChangeAction = 0x7E,//126
-        Jump = 0x8E,//142
-        SetLocation = 0x89,//137
-        GetSurroundings = 0xAA,//170
-        GUINpcInterface = 0xBA, //186
-        None = 0x00,//0
-        RequestFriendInfo = 0x9C, //156
-        Mining = 0x9F, //159
-        RequestEnemyInfo = 0xB3, //179
-        ChangeAvatar = 0x9E, // 158
-        EndFly = 0x78,// Wrong
-        Switch = 0x74//116
+        DeleteCharacter = 0x95,
+        ConfirmSpells = 0x96,
+        ConfirmGuild = 0x97,
+        ChangePKMode = 0x98,
+        CompleteLogin = 0x99,
+        Dead = 0x9A,
+        StartVend = 0xA7,  
+        ChangeAngle = 0x7C,
+        ChangeAction = 0x7E,
+        Jump = 0x8E,
+        SetLocation = 0x89,
+        GetSurroundings = 0xAA,
+        GUINpcInterface = 0xBA,
+        None = 0x00,
+        RequestFriendInfo = 0x9C,
+        Mining = 0x9F, 
+        RequestEnemyInfo = 0xB3, 
+        ChangeAvatar = 0x9E, 
+        EndFly = 0x78,
+        Switch = 0x74
     }
 }

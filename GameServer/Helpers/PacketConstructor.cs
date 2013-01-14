@@ -2,7 +2,7 @@
 
 namespace GameServer
 {
-    public unsafe class PacketConstructor
+    public unsafe class PacketHelper
     {
         public static byte[] StringPayload(params string[] Messages)
         {
@@ -23,8 +23,8 @@ namespace GameServer
 
         public static CharacterInformation *CreateInformation(GameClient Client)
         {
-            Character Character = Client.Character;
-            byte[] Payload = StringPayload(Character.Name, Character.Spouse);
+            
+            byte[] Payload = StringPayload(Client.Entity.Name, Client.Entity.Spouse);
 
             int Size = 66 + Payload.Length;
             CharacterInformation* Packet = (CharacterInformation*)Memory.Alloc(Size);
@@ -32,22 +32,22 @@ namespace GameServer
             Packet->Size = (ushort)Size;
             Packet->Type = 0x3EE;
 
-            Packet->ID = Character.ID;
-            Packet->Model = Character.Model;
-            Packet->HairStyle = Character.HairStyle;
-            Packet->Gold = Character.Gold;
-            Packet->Experience = Character.Experience;
-            Packet->StatPoints = Character.StatPoints;
-            Packet->Strength = Character.Strength;
-            Packet->Dexterity = Character.Dexterity;
-            Packet->Vitality = Character.Vitality;
-            Packet->Spirit = Character.Spirit;
-            Packet->HitPoints = Character.HitPoints;
-            Packet->ManaPoints = Character.ManaPoints;
-            Packet->PKPoints = Character.PKPoints;
-            Packet->Level = Character.Level;
-            Packet->Class = Character.Class;
-            Packet->Reborn = Character.Reborn;
+            Packet->ID = Client.Entity.UID;
+            Packet->Model = Client.Entity.Mesh;
+            Packet->HairStyle = Client.Entity.HairStyle;
+            Packet->Gold = Client.Entity.Gold;
+            Packet->Experience = Client.Entity.Experience;
+            Packet->StatPoints = Client.Entity.StatusPoints.Free;
+            Packet->Strength = Client.Entity.StatusPoints.Strength;
+            Packet->Dexterity = Client.Entity.StatusPoints.Dexterity;
+            Packet->Vitality = Client.Entity.StatusPoints.Vitality;
+            Packet->Spirit = Client.Entity.StatusPoints.Spirit;
+            Packet->HitPoints = Client.Entity.HitPoints;
+            Packet->ManaPoints = Client.Entity.ManaPoints;
+            Packet->PKPoints = Client.Entity.PKPoints;
+            Packet->Level = Client.Entity.Level;
+            Packet->Class = Client.Entity.Class;
+            Packet->Reborn = Client.Entity.Reborn;
             Packet->DisplayName = true;
             Packet->NameCount = 2;
 
@@ -73,6 +73,17 @@ namespace GameServer
                 Memory.Copy(pPayload, Packet->Data, Payload.Length);
             }
             return Packet;
+        }
+        public static string[] ParseChat(Chat* Packet)
+        {
+            List<string> Parameters = new List<string>();
+            for (int i = 0, Index = 0; i < Packet->Count; i++)
+            {
+                string Parameter = new string(Packet->Data, Index + 1, Packet->Data[Index]);
+                Index = Index + (Parameter.Length + 1);
+                Parameters.Add(Parameter);
+            }
+            return Parameters.ToArray();
         }
     }
 }

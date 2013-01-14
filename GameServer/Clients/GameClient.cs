@@ -10,17 +10,16 @@ namespace GameServer
     {
         private WinsockClient Connection;
         private GameCryptography Crypto;
-        public Character Character;
+        public Entity Entity;
         public uint UID;
 
         public GameClient(WinsockClient Connection)
         {
             this.Connection = Connection;
-
-            
+   
             Crypto = new GameCryptography();
             Crypto.Initialize();
-            Character = new Character(this);
+            Entity = new Entity(this);
         }
 
         public void Send(void* Packet, ushort Size)

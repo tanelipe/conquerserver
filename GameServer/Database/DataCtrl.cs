@@ -37,5 +37,12 @@ namespace GameServer.Database
 
             return Count > 0;
         }
+
+        protected void DropTable()
+        {
+            SQLiteCommand Command = GetConnection().CreateCommand();
+            Command.CommandText = "DROP TABLE " + GetTableName();
+            Command.ExecuteNonQuery();
+        }
     }
 }
