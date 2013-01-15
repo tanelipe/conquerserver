@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clients\Character.cs" />
+    <Compile Include="Clients\Entity.cs" />
     <Compile Include="Clients\GameClient.cs" />
     <Compile Include="Database\CharacterDataCtrl.cs" />
     <Compile Include="Database\Database.cs" />
@@ -61,12 +61,14 @@
     <Compile Include="Packets\CharacterCreation.cs" />
     <Compile Include="Packets\CharacterInformation.cs" />
     <Compile Include="Packets\Chat.cs" />
+    <Compile Include="Packets\EntityMovement.cs" />
     <Compile Include="Packets\GeneralData.cs" />
     <Compile Include="Packets\ItemUsage.cs" />
     <Compile Include="Processors\CommandProcessor.cs" />
     <Compile Include="Processors\PacketProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Structures\ConquerEnums.cs" />
     <Compile Include="Structures\Location.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -36,6 +36,7 @@ namespace GameServer.Processors
                 {
                     case 0x3E9: HandleCharacterCreation(Client, pPacket); break;
                     case 0x3EC: HandleChatting(Client, pPacket); break;
+                    case 0x3ED: HandleMovement(Client, pPacket); break;
                     case 0x3F1: HandleItemUsage(Client, pPacket); break;
                     case 0x3F2: HandleGeneralData(Client, pPacket); break;
                     case 0x41C: HandleTransfer(Client, pPacket); break;
@@ -57,7 +58,19 @@ namespace GameServer.Processors
                 Process(Client, Footer);
             }
         }
-
+        private void HandleMovement(GameClient Client, byte* pPacket)
+        {
+            EntityMovement* Packet = (EntityMovement*)pPacket;
+            if (Packet->UID == Client.Entity.UID)
+            {
+                ConquerAngle Direction = (ConquerAngle)(Packet->Direction % 8);
+                Client.Entity.Walk(Direction);
+            }
+            else
+            {
+                Client.Disconnect();
+            }
+        }
         private void HandleChatting(GameClient Client, byte* pPacket)
         {
             Chat* Packet = (Chat*)pPacket;

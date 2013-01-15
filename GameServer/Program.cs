@@ -24,7 +24,6 @@ namespace GameServer
 #if WIPE_DATABASE
             Database.DropCharacterTable();   
 #endif
-
             PacketProcessor = new PacketProcessor(Database);
 
             while (true)
