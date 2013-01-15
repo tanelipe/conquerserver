@@ -51,7 +51,10 @@
     <Compile Include="Database\CharacterDataCtrl.cs" />
     <Compile Include="Database\Database.cs" />
     <Compile Include="Database\DataCtrl.cs" />
+    <Compile Include="Database\EquipmentCtrl.cs" />
+    <Compile Include="Database\ItemInformationCtrl.cs" />
     <Compile Include="Database\LocationDataCtrl.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Helpers\PacketConstructor.cs" />
     <Compile Include="Kernel.cs" />
     <Compile Include="Memory.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structures\ConquerEnums.cs" />
+    <Compile Include="Structures\ConquerItem.cs" />
     <Compile Include="Structures\Location.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -20,6 +20,8 @@ namespace GameServer
         public ushort Spirit;
         public ushort Free;
     }
+
+
     public class Entity
     {
         public GameClient Owner;
@@ -45,6 +47,10 @@ namespace GameServer
         public byte Reborn;
         public string Name;
         public string Spouse;
+        public ConquerAction Action;
+        public ConquerAngle Angle;
+
+        public Dictionary<ItemPosition, ConquerItem> Equipment;
 
         public Entity(GameClient Client)
         {
@@ -57,6 +63,11 @@ namespace GameServer
 
             StatusPoints = new StatusPoints();
             Spouse = "NONE";
+
+            Action = ConquerAction.Stand;
+            Angle = ConquerAngle.Unknown;
+
+            Equipment = new Dictionary<ItemPosition, ConquerItem>();
         }
 
         public void Walk(ConquerAngle Angle)

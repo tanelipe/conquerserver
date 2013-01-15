@@ -12,6 +12,7 @@ namespace GameServer.Database
         private SQLiteConnection Connection;
         private CharacterDataCtrl CharacterCtrl;
         private LocationDataCtrl LocationCtrl;
+        private EquipmentCtrl EquipmentCtrl;
 
         public DatabaseManager()
         {
@@ -20,6 +21,12 @@ namespace GameServer.Database
 
             CharacterCtrl = new CharacterDataCtrl(Connection);
             LocationCtrl = new LocationDataCtrl(Connection);
+            EquipmentCtrl = new EquipmentCtrl(Connection);
+
+        }
+        public void LoadEquipment(GameClient Client)
+        {
+            EquipmentCtrl.LoadEquipment(Client);
         }
         public void DropCharacterTable()
         {

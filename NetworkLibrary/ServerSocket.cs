@@ -52,8 +52,9 @@ namespace NetworkLibrary
             {
                 WinsockClient Client = new WinsockClient(this, Connection.EndAccept(result), BufferSize, CreatePacketCipher());
                 if (OnClientConnected != null)
-                    OnClientConnected(Client, null);
-
+                {
+                    OnClientConnected.Invoke(Client, null);
+                }
                 Client.BeginReceive();
                 Connection.BeginAccept(new AsyncCallback(AcceptConnectionCallback), null);
             }

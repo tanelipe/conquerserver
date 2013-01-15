@@ -6,8 +6,6 @@ namespace NetworkLibrary
 
     public class WinsockClient : IDisposable
     {
-     
-        private IPacketCipher Cipher;
         private ServerSocket Server;
         private Socket Connection;
         private byte[] Buffer;
@@ -19,8 +17,6 @@ namespace NetworkLibrary
         {
             this.Server = Server;
             this.Connection = Connection;
-            this.Cipher = Cipher;
-
             Buffer = new byte[BufferSize];
             Disposed = false;
         }
@@ -29,9 +25,6 @@ namespace NetworkLibrary
         {
             try
             {
-                if (Cipher != null)
-                    Cipher.Encrypt(Packet);
-
                 Connection.Send(Packet);
             }
             catch (Exception exception)
@@ -68,13 +61,10 @@ namespace NetworkLibrary
                     byte[] Packet = new byte[Size];
                     System.Buffer.BlockCopy(Buffer, 0, Packet, 0, Size);
 
-                    if (Cipher != null)
-                        Cipher.Decrypt(Packet);
-
-                  
                     if (Server.OnClientReceived != null)
-                        Server.OnClientReceived(this, Packet, Size);
-
+                    {
+                        Server.OnClientReceived.BeginInvoke(this, Packet, Size, null, null);
+                    }
                     BeginReceive();
                 }
             }
@@ -98,10 +88,6 @@ namespace NetworkLibrary
 
         public void Dispose()
         {
-            if (Cipher != null)
-            {
-                Cipher.Dispose();
-            }
             if (Connection != null)
             {
                 Connection.Close();

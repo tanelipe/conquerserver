@@ -17,7 +17,20 @@ namespace GameServer.Processors
             CommandProcessor = new CommandProcessor();
         }
 
-        public void Process(GameClient Client, byte[] Packet)
+        public void Process(GameClient Client, byte[] Chunk)
+        {
+            Client.Packets.Push(Chunk);
+
+            byte[] Packet = Client.Packets.Pop();
+            while (Packet != null)
+            {
+                InternalProcess(Client, Packet);
+                Packet = Client.Packets.Pop();
+            }
+        }
+
+
+        private void InternalProcess(GameClient Client, byte[] Packet)
         {          
             fixed (byte* pPacket = Packet)
             {
@@ -40,6 +53,7 @@ namespace GameServer.Processors
                     case 0x3F1: HandleItemUsage(Client, pPacket); break;
                     case 0x3F2: HandleGeneralData(Client, pPacket); break;
                     case 0x41C: HandleTransfer(Client, pPacket); break;
+                    
                 }
             }
         }
@@ -121,6 +135,9 @@ namespace GameServer.Processors
                             Client.Entity.Location.Y = Y2;
                         }                       
                     } break;
+                default:
+                    Client.Send(Packet, Packet->Size);
+                    break;
             }
         }
         private unsafe void HandleCharacterCreation(GameClient Client, byte* pPacket)
