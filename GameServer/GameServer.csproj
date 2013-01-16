@@ -53,8 +53,10 @@
     <Compile Include="Database\DataCtrl.cs" />
     <Compile Include="Database\EquipmentCtrl.cs" />
     <Compile Include="Database\ItemInformationCtrl.cs" />
+    <Compile Include="Database\ItemTypeCtrl.cs" />
     <Compile Include="Database\LocationDataCtrl.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="File Loaders\ItemTypeLoader.cs" />
     <Compile Include="Helpers\PacketConstructor.cs" />
     <Compile Include="Kernel.cs" />
     <Compile Include="Memory.cs" />

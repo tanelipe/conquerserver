@@ -10,6 +10,8 @@ namespace GameServer
 {
     class Program
     {
+        private static ItemTypeLoader ItemTypeLoader;
+
         private static PacketProcessor PacketProcessor;
         private static DatabaseManager Database;
         static void Main(string[] args)
@@ -25,6 +27,9 @@ namespace GameServer
             Database.DropCharacterTable();   
 #endif
             PacketProcessor = new PacketProcessor(Database);
+
+            ItemTypeLoader = new ItemTypeLoader();
+            ItemTypeLoader.LoadItems();
 
             while (true)
             {

@@ -13,6 +13,7 @@ namespace GameServer.Database
         private CharacterDataCtrl CharacterCtrl;
         private LocationDataCtrl LocationCtrl;
         private EquipmentCtrl EquipmentCtrl;
+        private ItemTypeCtrl ItemTypeCtrl;
 
         public DatabaseManager()
         {
@@ -22,7 +23,7 @@ namespace GameServer.Database
             CharacterCtrl = new CharacterDataCtrl(Connection);
             LocationCtrl = new LocationDataCtrl(Connection);
             EquipmentCtrl = new EquipmentCtrl(Connection);
-
+            ItemTypeCtrl = new ItemTypeCtrl(Connection);
         }
         public void LoadEquipment(GameClient Client)
         {
