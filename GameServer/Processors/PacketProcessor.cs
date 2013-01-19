@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GameServer.Database;
 namespace GameServer.Processors
 {
@@ -43,7 +39,7 @@ namespace GameServer.Processors
                     return;
                 }
 
-                Kernel.HexDump(Packet, "Client -> Server");
+                //Kernel.HexDump(Packet, "Client -> Server");
 
                 switch (*Type)
                 {
@@ -79,6 +75,9 @@ namespace GameServer.Processors
             {
                 ConquerAngle Direction = (ConquerAngle)(Packet->Direction % 8);
                 Client.Entity.Walk(Direction);
+
+                Client.Screen.Update();
+                Client.SendScreen(Packet, Packet->Size);
             }
             else
             {
@@ -131,10 +130,29 @@ namespace GameServer.Processors
                             ushort X2 = Packet->ValueD_High;
                             ushort Y2 = Packet->ValueD_Low;
 
+                            double Direction = ConquerMath.PointDirection(Client.Entity.Location.X, Client.Entity.Location.Y, X2, Y2);
+
+                            Console.WriteLine(Direction);
+
                             Client.Entity.Location.X = X2;
                             Client.Entity.Location.Y = Y2;
+
+                            Client.Screen.Update();
+                            Client.SendScreen(Packet, Packet->Size);
                         }                       
                     } break;
+                case GeneralDataID.GetSurroundings:
+                    {
+                        Client.Screen.Update(true);
+                    } break;
+                case GeneralDataID.ChangeAction:
+                    Client.Entity.Action = (ConquerAction)Packet->ValueD_High;
+                    Client.SendScreen(Packet, Packet->Size);
+                    break;
+                case GeneralDataID.ChangeAngle:
+                    Client.Entity.Angle = (ConquerAngle)Packet->ValueC;
+                    Client.SendScreen(Packet, Packet->Size);
+                    break;
                 default:
                     Client.Send(Packet, Packet->Size);
                     break;
@@ -176,7 +194,9 @@ namespace GameServer.Processors
 
                     CharacterInformation* Information = PacketHelper.CreateInformation(Client);
                     Client.Send(Information, Information->Size);
-                    Memory.Free(Information);     
+                    Memory.Free(Information);
+
+                    ClientManager.Add(Client);
                 }
                 else
                 {

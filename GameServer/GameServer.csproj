@@ -46,8 +46,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientManager.cs" />
     <Compile Include="Clients\Entity.cs" />
     <Compile Include="Clients\GameClient.cs" />
+    <Compile Include="Clients\IEntity.cs" />
+    <Compile Include="Clients\Monster.cs" />
+    <Compile Include="Clients\NonPlayingCharacter.cs" />
+    <Compile Include="Clients\Screen.cs" />
     <Compile Include="Database\CharacterDataCtrl.cs" />
     <Compile Include="Database\Database.cs" />
     <Compile Include="Database\DataCtrl.cs" />
@@ -55,10 +60,12 @@
     <Compile Include="Database\ItemInformationCtrl.cs" />
     <Compile Include="Database\ItemTypeCtrl.cs" />
     <Compile Include="Database\LocationDataCtrl.cs" />
+    <Compile Include="Database\NpcSpawnCtrl.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="File Loaders\ItemTypeLoader.cs" />
     <Compile Include="Helpers\PacketConstructor.cs" />
     <Compile Include="Kernel.cs" />
+    <Compile Include="Math.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="Network\GameCryptography.cs" />
     <Compile Include="Network\GameServerSocket.cs" />
@@ -67,8 +74,10 @@
     <Compile Include="Packets\CharacterInformation.cs" />
     <Compile Include="Packets\Chat.cs" />
     <Compile Include="Packets\EntityMovement.cs" />
+    <Compile Include="Packets\EntitySpawn.cs" />
     <Compile Include="Packets\GeneralData.cs" />
     <Compile Include="Packets\ItemUsage.cs" />
+    <Compile Include="Packets\NpcSpawn.cs" />
     <Compile Include="Processors\CommandProcessor.cs" />
     <Compile Include="Processors\PacketProcessor.cs" />
     <Compile Include="Program.cs" />
@@ -76,6 +85,7 @@
     <Compile Include="Structures\ConquerEnums.cs" />
     <Compile Include="Structures\ConquerItem.cs" />
     <Compile Include="Structures\Location.cs" />
+    <Compile Include="Structures\StatusPoints.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

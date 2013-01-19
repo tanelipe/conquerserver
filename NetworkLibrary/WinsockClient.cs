@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 namespace NetworkLibrary
 {
     using System.Net.Sockets;
@@ -37,8 +36,7 @@ namespace NetworkLibrary
 
         public void BeginReceive()
         {
-            if (Disposed)
-                return;
+            if (Disposed) return;
 
             Connection.BeginReceive(Buffer, 0, Buffer.Length, SocketFlags.None, new AsyncCallback(AsyncReceiveCallback), null);
         }
@@ -57,7 +55,6 @@ namespace NetworkLibrary
                 }
                 else
                 {
-
                     byte[] Packet = new byte[Size];
                     System.Buffer.BlockCopy(Buffer, 0, Packet, 0, Size);
 
@@ -82,8 +79,6 @@ namespace NetworkLibrary
             if (Server.OnClientDisconnected != null)
                 Server.OnClientDisconnected(this, null);
             Dispose();
-       
-            //Server.Disconnect(this);
         }
 
         public void Dispose()

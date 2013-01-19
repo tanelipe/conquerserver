@@ -56,6 +56,7 @@ namespace GameServer
         private WinsockClient Connection;
         private GameCryptography Crypto;
         public Entity Entity;
+        public Screen Screen;
         public uint UID;
 
         private PacketQueue Queue;
@@ -69,6 +70,7 @@ namespace GameServer
             Entity = new Entity(this);
 
             Queue = new PacketQueue();
+            Screen = new Screen(this);
         }
 
         public PacketQueue Packets
@@ -86,6 +88,14 @@ namespace GameServer
                 Memory.Copy(Packet, pPacket, Size);
             }
             Send(tmp);
+        }
+        public void SendScreen(void* Packet, ushort Size)
+        {
+            Entity[] Entities = Screen.Players.Values.ToArray();
+            foreach (Entity entity in Entities)
+            {
+                entity.Owner.Send(Packet, Size);
+            }
         }
         public void Send(byte[] Packet)
         {

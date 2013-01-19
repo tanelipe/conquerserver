@@ -17,7 +17,7 @@ namespace GameServer.Database
 
         public void CreateCharacter(GameClient Client, ushort Model, ushort Class, string Name)
         {
-            Client.Entity.UID = 100000 + Client.UID;
+            Client.Entity.UID = 1000000 + Client.UID;
 
             SQLiteCommand Command = GetConnection().CreateCommand();
             Command.CommandText = "INSERT INTO Characters(ID, Avatar, Mesh, HairStyle, Gold, Experience, Strength, Dexterity, Vitality," +
@@ -80,7 +80,7 @@ namespace GameServer.Database
         }
         public bool GetCharacterData(GameClient Client)
         {
-            uint ID = 100000 + Client.UID;
+            uint ID = 1000000 + Client.UID;
 
             SQLiteCommand Command = GetConnection().CreateCommand();
             Command.CommandText = "SELECT * FROM Characters WHERE ID = @ID;";

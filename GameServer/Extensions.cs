@@ -26,7 +26,8 @@ namespace GameServer
         {
             lock (dictionary)
             {
-                dictionary.Remove(Key);
+                if(dictionary.ContainsKey(Key))
+                    dictionary.Remove(Key);
             }
         }
     }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace GameServer
 {
     public enum ConquerAngle : sbyte
@@ -33,5 +28,11 @@ namespace GameServer
         Bow = 0xC8,
         Sit = 0xFA,
         Stand = 0x64,
+    }
+    public enum EntityFlag
+    {
+        Player,
+        Monster,
+        NPC
     }
 }

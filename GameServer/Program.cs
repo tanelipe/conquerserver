@@ -14,6 +14,7 @@ namespace GameServer
 
         private static PacketProcessor PacketProcessor;
         private static DatabaseManager Database;
+
         static void Main(string[] args)
         {
             GameServerSocket Server = new GameServerSocket() ;
@@ -44,6 +45,7 @@ namespace GameServer
         {
             GameClient Client = Socket.Wrapper as GameClient;
             Database.SaveCharacter(Client);
+            ClientManager.Remove(Client);
         }
         private static unsafe void OnClientReceive(WinsockClient Socket, byte[] Packet, int Length)
         {

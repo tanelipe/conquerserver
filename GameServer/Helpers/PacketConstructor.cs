@@ -21,6 +21,43 @@ namespace GameServer
             return Payload.ToArray();
         }
 
+        public static EntitySpawn EntitySpawn(Entity Entity)
+        {
+            byte[] Payload = StringPayload(Entity.Name);
+
+            int Size = 57 + Payload.Length;
+            EntitySpawn Packet = new EntitySpawn();
+            Packet.Size = (ushort)Size;
+            Packet.Type = 0x3F6;
+            Packet.UID = Entity.UID;
+            Packet.Mesh = Entity.Mesh;
+            Packet.Status = Entity.Status;
+            Packet.GuildID = 0;
+            Packet.GuildRank = 0;
+            Packet.Items = new EntityItems();
+            if (Entity.Equipment.ContainsKey(ItemPosition.Headgear))
+                Packet.Items.Helmet = Entity.Equipment[ItemPosition.Headgear].ID;
+            if (Entity.Equipment.ContainsKey(ItemPosition.Armor))
+                Packet.Items.Armor = Entity.Equipment[ItemPosition.Armor].ID;
+            if (Entity.Equipment.ContainsKey(ItemPosition.Left))
+                Packet.Items.LeftHand = Entity.Equipment[ItemPosition.Left].ID;
+            if (Entity.Equipment.ContainsKey(ItemPosition.Right))
+                Packet.Items.RightHand = Entity.Equipment[ItemPosition.Right].ID;
+
+            Packet.X = Entity.Location.X;
+            Packet.Y = Entity.Location.Y;
+            Packet.HairStyle = Entity.HairStyle;
+            Packet.Angle = Entity.Angle;
+            Packet.Action = Entity.Action;
+            Packet.ShowNames = true;
+
+            fixed (byte* pPayload = Payload)
+            {
+                Memory.Copy(pPayload, Packet.Name, Payload.Length);
+            }
+            return Packet;
+        }
+
         public static CharacterInformation *CreateInformation(GameClient Client)
         {
             
