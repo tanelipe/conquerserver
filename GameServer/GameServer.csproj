@@ -79,12 +79,15 @@
     <Compile Include="Packets\GeneralData.cs" />
     <Compile Include="Packets\ItemUsage.cs" />
     <Compile Include="Packets\NpcSpawn.cs" />
+    <Compile Include="Packets\StatusUpdate.cs" />
     <Compile Include="Processors\CommandProcessor.cs" />
     <Compile Include="Processors\PacketProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structures\ConquerEnums.cs" />
     <Compile Include="Structures\ConquerItem.cs" />
+    <Compile Include="Structures\LoginStatus.cs" />
+    <Compile Include="Structures\ConquerStatusIDs.cs" />
     <Compile Include="Structures\Location.cs" />
     <Compile Include="Structures\NpcSpawnFile.cs" />
     <Compile Include="Structures\StatusPoints.cs" />

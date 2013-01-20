@@ -21,9 +21,9 @@ namespace GameServer
             return 0;
         }
     }
-    class Kernel
+    public unsafe class Kernel
     {
-        public static int ScreenView = 18;
+        public static int ScreenView = 16;
 
         public static void GetScreen(GameClient Client, ConquerCallback Callback)
         {
@@ -43,7 +43,6 @@ namespace GameServer
                     if (Other.Entity.Location.MapID != Client.Entity.Location.MapID) continue;
 
                     Distance = ConquerMath.CalculateDistance(Other.Entity.Location, Client.Entity.Location);
-                    int Distance2 = ConquerMath.CalculateDistance(Other.Entity.Location, Client.Entity.Location, false);
                     if (Distance <= ScreenView)
                     {
                         if (Client.Screen.Add(Other.Entity))
@@ -54,8 +53,23 @@ namespace GameServer
                             }
                         }
                     }
-                    Console.WriteLine(Distance + " - " + Distance2);
                 }
+
+                NonPlayerCharacter[] NPCs = EntityManager.NonPlayingCharacters;
+                foreach (NonPlayerCharacter npc in NPCs)
+                {
+                    if (npc.Location.MapID != Client.Entity.Location.MapID) continue;
+                    Distance = ConquerMath.CalculateDistance(npc.Location, Client.Entity.Location);
+                    if (Distance <= ScreenView)
+                    {
+                        if (Client.Screen.Add(npc))
+                        {
+                            NpcSpawn Spawn = npc.GetSpawnPacket();
+                            Client.Send(&Spawn, Spawn.Size);
+                        }
+                    }
+                }
+
             }
             finally
             {

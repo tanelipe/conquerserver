@@ -39,7 +39,7 @@ namespace GameServer.Processors
                     return;
                 }
 
-               // Kernel.HexDump(Packet, "Client -> Server");
+                Kernel.HexDump(Packet, "Client -> Server");
 
                 switch (*Type)
                 {
@@ -128,6 +128,7 @@ namespace GameServer.Processors
                             ushort X2 = Packet->ValueD_High;
                             ushort Y2 = Packet->ValueD_Low;
 
+                           
                             Client.Entity.Angle = ConquerMath.GetAngle(Client.Entity.Location, new Location() { X = X2, Y = Y2 });
 
                             Client.Entity.Location.X = X2;
@@ -153,6 +154,20 @@ namespace GameServer.Processors
                     Client.Entity.Angle = (ConquerAngle)Packet->ValueC;
                     Client.SendScreen(Packet, Packet->Size);
                     break;
+                case GeneralDataID.EnterPortal:
+                   
+                    Client.Teleport(1002, 400, 400);
+                    Client.Message("Portals are not implemeted yet.", ChatType.Center);
+                    break;
+                case GeneralDataID.ChangeAvatar:
+                    {
+                        if (Client.Entity.Money >= 500)
+                        {
+                            Client.Entity.Money -= 500;
+                            Client.Entity.Avatar = (byte)Packet->ValueD_High;
+                            //Client.SendScreen(Packet, Packet->Size, true);                          
+                        }
+                    } break;
                 default:
                     Client.Send(Packet, Packet->Size);
                     break;
@@ -197,6 +212,7 @@ namespace GameServer.Processors
                     Memory.Free(Information);
 
                     EntityManager.Add(Client);
+                    Client.Status = LoginStatus.Complete;
                 }
                 else
                 {

@@ -20,6 +20,19 @@ namespace GameServer
             }
             return Payload.ToArray();
         }
+        public static StatusUpdate* UpdatePacket(params StatusUpdateEntry[] entries)
+        {
+            int Size = 20 + (entries.Length * 8);
+            StatusUpdate* Packet = (StatusUpdate*)Memory.Alloc(Size);
+            Packet->Size = (ushort)Size;
+            Packet->Type = 0x3F9;
+            Packet->Amount = (uint)entries.Length;
+            fixed (StatusUpdateEntry* entry = entries)
+            {
+                Memory.Copy(entry, Packet->Data, 8 * entries.Length);
+            }
+            return Packet;
+        }
         public static GeneralData* ConstructGeneralData()
         {
             int size = sizeof(GeneralData);
@@ -78,9 +91,9 @@ namespace GameServer
             Packet->Type = 0x3EE;
 
             Packet->ID = Client.Entity.UID;
-            Packet->Model = Client.Entity.Mesh;
+            Packet->Model = Client.Entity.Model;
             Packet->HairStyle = Client.Entity.HairStyle;
-            Packet->Gold = Client.Entity.Gold;
+            Packet->Gold = Client.Entity.Money;
             Packet->Experience = Client.Entity.Experience;
             Packet->StatPoints = Client.Entity.StatusPoints.Free;
             Packet->Strength = Client.Entity.StatusPoints.Strength;

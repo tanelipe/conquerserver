@@ -60,7 +60,7 @@ namespace GameServer.Database
             Command.Parameters.Add("@Avatar", DbType.Int32).Value = Client.Entity.Avatar;
             Command.Parameters.Add("@Mesh", DbType.Int32).Value = Client.Entity.Mesh;
             Command.Parameters.Add("@HairStyle", DbType.Int32).Value = Client.Entity.HairStyle;
-            Command.Parameters.Add("@Gold", DbType.Int32).Value = Client.Entity.Gold;
+            Command.Parameters.Add("@Gold", DbType.Int32).Value = Client.Entity.Money;
             Command.Parameters.Add("@Experience", DbType.Int32).Value = Client.Entity.Experience;
             Command.Parameters.Add("@Strength", DbType.Int32).Value = Client.Entity.StatusPoints.Strength;
             Command.Parameters.Add("@Dexterity", DbType.Int32).Value = Client.Entity.StatusPoints.Dexterity;
@@ -94,7 +94,7 @@ namespace GameServer.Database
                 Client.Entity.Avatar = Convert.ToByte(Reader["Avatar"]);
                 Client.Entity.Mesh = Convert.ToUInt16(Reader["Mesh"]);
                 Client.Entity.HairStyle = Convert.ToUInt16(Reader["HairStyle"]);
-                Client.Entity.Gold = Convert.ToUInt32(Reader["Gold"]);
+                Client.Entity.Money = Convert.ToUInt32(Reader["Gold"]);
                 Client.Entity.Experience = Convert.ToUInt32(Reader["Experience"]);
                 Client.Entity.StatusPoints.Strength = Convert.ToUInt16(Reader["Strength"]);
                 Client.Entity.StatusPoints.Dexterity = Convert.ToUInt16(Reader["Dexterity"]);

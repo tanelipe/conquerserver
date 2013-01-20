@@ -6,13 +6,52 @@ using System.Threading.Tasks;
 
 namespace GameServer
 {
-    public class Entity : IEntity<EntitySpawn>
+    public unsafe class Entity : IEntity<EntitySpawn>
     {
         public GameClient Owner;
 
-        public byte Avatar;
+        private byte avatar;
+        public byte Avatar
+        {
+            get { return avatar; }
+            set
+            {
+                avatar = value;
+                if (Owner.Status == LoginStatus.Complete)
+                {
+                    StatusUpdateEntry Entry = new StatusUpdateEntry()
+                    {
+                        Type = ConquerStatusIDs.Model,
+                        Value = Model
+                    };
+
+                    StatusUpdate* Update = PacketHelper.UpdatePacket(Entry);
+                    Update->UID = UID;
+                    Owner.SendScreen(Update, Update->Size, true);
+                    Memory.Free(Update);
+                }
+            }
+        }
         public ushort HairStyle;
-        public uint Gold;
+
+
+        private uint money;
+        public uint Money
+        {
+            get { return money; }
+            set
+            {
+                money = value;
+
+                if (Owner.Status == LoginStatus.Complete)
+                {
+                    StatusUpdate* Update = PacketHelper.UpdatePacket(StatusUpdateEntry.Gold(money));
+                    Update->UID = UID;
+                    Owner.Send(Update, Update->Size);
+                    Memory.Free(Update);
+                }
+            }
+        }
         public uint Experience;
 
         public StatusPoints StatusPoints;

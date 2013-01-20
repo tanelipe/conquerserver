@@ -39,6 +39,10 @@ namespace GameServer
         {
             IntPtr Block = new IntPtr(block);
             IntPtr ReAlloc = Marshal.ReAllocHGlobal(Block, new IntPtr(size));
+            for (int i = 0; i < size; i++)
+            {
+                Marshal.WriteByte(ReAlloc, i, 0);
+            }
             return ReAlloc.ToPointer();      
         }
         // Heap API flags

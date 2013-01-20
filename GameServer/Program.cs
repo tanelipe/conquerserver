@@ -24,9 +24,6 @@ namespace GameServer
             Server.Initialize();
 
             Database = new DatabaseManager();
-#if WIPE_DATABASE
-            Database.DropCharacterTable();   
-#endif
             PacketProcessor = new PacketProcessor(Database);
 
             ItemTypeLoader = new ItemTypeLoader();
