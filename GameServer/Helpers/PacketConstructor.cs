@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System;
 namespace GameServer
 {
     public unsafe class PacketHelper
@@ -20,7 +20,15 @@ namespace GameServer
             }
             return Payload.ToArray();
         }
-
+        public static GeneralData* ConstructGeneralData()
+        {
+            int size = sizeof(GeneralData);
+            GeneralData* Packet = (GeneralData*)Memory.Alloc(size);
+            Packet->Size = (ushort)size;
+            Packet->Type = 0x3F2;
+            Packet->Timer = (uint)Environment.TickCount;
+            return Packet;
+        }
         public static EntitySpawn EntitySpawn(Entity Entity)
         {
             byte[] Payload = StringPayload(Entity.Name);

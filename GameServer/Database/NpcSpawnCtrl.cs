@@ -21,6 +21,39 @@ namespace GameServer.Database
             return "NpcSpawns";
         }
 
+        /// <summary>
+        /// Loads the NonPlayingCharacters from database (Currently only TwinCity)
+        /// </summary>
+        /// <param name="Spawns"></param>
+        public void Load(Dictionary<uint, NonPlayerCharacter> Spawns)
+        {
+            Spawns.Clear();
+
+            SQLiteCommand Command = GetConnection().CreateCommand();
+            Command.CommandText = "SELECT * FROM NpcSpawns WHERE MapID = 1002;";
+            SQLiteDataReader Reader = Command.ExecuteReader();
+            while (Reader.Read())
+            {
+                NonPlayerCharacter NPC = new NonPlayerCharacter();
+                NPC.UID = Convert.ToUInt32(Reader["ID"]);
+
+                ushort Type = Convert.ToUInt16(Reader["Type"]);
+
+                NPC.Angle = (ConquerAngle)(Type % 10);
+                NPC.Type = (ushort)(Type - (Type % 10));
+
+                NPC.Location = new Location();
+                NPC.Location.MapID = Convert.ToUInt16(Reader["MapID"]);
+                NPC.Location.X = Convert.ToUInt16(Reader["X"]);
+                NPC.Location.Y = Convert.ToUInt16(Reader["Y"]);
+                NPC.Flag = Convert.ToUInt16(Reader["Flag"]);
+                NPC.Interaction = Convert.ToUInt16(Reader["Interaction"]);               
+
+                Spawns.Add(NPC.UID, NPC);
+            }
+            Reader.Close();
+        }
+
         public override void CreateTable()
         {
             SQLiteTransaction Transaction = GetConnection().BeginTransaction();

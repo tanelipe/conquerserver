@@ -3,7 +3,7 @@
     public class NonPlayerCharacter : IEntity<NpcSpawn>
     {
         public ushort Type;
-        public ushort Direction;
+        public ushort Flag;
         public ushort Interaction;
 
         public override NpcSpawn GetSpawnPacket()
@@ -14,7 +14,7 @@
             Spawn.UID = UID;
             Spawn.X = Location.X;
             Spawn.Y = Location.Y;
-            Spawn.TypeDirection = (ushort)(Type + Direction);
+            Spawn.TypeDirection = (ushort)(Type + (byte)Angle);
             Spawn.Interaction = Interaction;
             return Spawn;
         }

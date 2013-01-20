@@ -4,14 +4,15 @@ namespace GameServer
 {
     public class EntityManager
     {
-        private static Dictionary<uint, GameClient> GameClients;
-        private static Dictionary<uint, NonPlayerCharacter> NPCs;
+        public static Dictionary<uint, GameClient> GameClients;
+        public static Dictionary<uint, NonPlayerCharacter> NPCs;
         private static object Lock;
         
         static EntityManager()
         {
             GameClients = new Dictionary<uint, GameClient>();
             NPCs = new Dictionary<uint, NonPlayerCharacter>();
+           
             Lock = new object();
         }
 

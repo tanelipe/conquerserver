@@ -1,126 +1,132 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System;
 
 namespace GameServer
 {
     public unsafe class Screen
     {
         private GameClient Client;
-        public Dictionary<uint, Entity> Players;
-        public Dictionary<uint, Monster> Monsters;
-        public Dictionary<uint, NonPlayerCharacter> NonPlayingCharacters;
+
+        private Dictionary<uint, Entity> PlayerDictionary;
+        private Dictionary<uint, NonPlayerCharacter> NPCDictionary;
+
+        private Entity[] ScreenPlayers;
+        private NonPlayerCharacter[] ScreenNPCs;
 
         public Screen(GameClient Client)
         {
             this.Client = Client;
 
-            Players = new Dictionary<uint, Entity>();
-            Monsters = new Dictionary<uint, Monster>();
-            NonPlayingCharacters = new Dictionary<uint, NonPlayerCharacter>();
-        }
+            PlayerDictionary = new Dictionary<uint, Entity>();
+            NPCDictionary = new Dictionary<uint, NonPlayerCharacter>();
 
-   
-        private void Clean()
-        {
-            Players.Clear();
-            Monsters.Clear();
-            NonPlayingCharacters.Clear();
+            ScreenPlayers = new Entity[0];
+            ScreenNPCs = new NonPlayerCharacter[0];
         }
-        private void Add(Entity Entity, bool Mutual = true)
+        public Entity[] Players { get { return ScreenPlayers; } }
+        public NonPlayerCharacter[] NPCs { get { return ScreenNPCs; } }
+
+        public void Wipe()
         {
-            if (!Players.ContainsKey(Entity.UID))
+            PlayerDictionary.Clear();
+            ScreenPlayers = new Entity[0];
+
+            NPCDictionary.Clear();
+            ScreenNPCs = new NonPlayerCharacter[0];
+        }
+        public bool Add(Entity Entity)
+        {
+            lock (PlayerDictionary)
             {
-                EntitySpawn SpawnPacket = PacketHelper.EntitySpawn(Entity);
-                Client.Send(&SpawnPacket, SpawnPacket.Size);
-            }
-            Players.ThreadSafeAdd(Entity.UID, Entity);
-        
-            if (Mutual)
-            {
-                // If someone sees you, you see them.
-                Entity.Owner.Screen.Add(Client.Entity, false);
-            }
-        }
-        private void Add(Monster Monster)
-        {
-            Monsters.ThreadSafeAdd(Monster.UID, Monster);
-        }
-        private void Add(NonPlayerCharacter NPC)
-        {
-            NonPlayingCharacters.ThreadSafeAdd(NPC.UID, NPC);
-        }
-        private void Remove(Entity Entity, bool Mutual = true)
-        {
-            if (Players.ContainsKey(Entity.UID))
-            {
-                if (Mutual)
+                if (!PlayerDictionary.ContainsKey(Entity.UID))
                 {
-                    Entity Other = Players[Entity.UID];
-                    Other.Owner.Screen.Remove(Client.Entity, false);
+                    EntitySpawn Spawn = PacketHelper.EntitySpawn(Entity);
+                    Client.Send(&Spawn, Spawn.Size);
+
+                    PlayerDictionary.Add(Entity.UID, Entity);
+                    Entity[] tmp = new Entity[PlayerDictionary.Count];
+                    PlayerDictionary.Values.CopyTo(tmp, 0);
+                    ScreenPlayers = tmp;
+
+                    Console.WriteLine("Added {0} To {1} Screen", Entity.Name, Client.Entity.Name);
+                    return true;
                 }
-                Players.ThreadSafeRemove(Entity.UID);
             }
+            return false;
         }
-        private void Remove(NonPlayerCharacter NPC)
+        public bool Add(NonPlayerCharacter NPC)
         {
-            if (NonPlayingCharacters.ContainsKey(NPC.UID))
+            lock (NPCDictionary)
             {
-                Players.ThreadSafeRemove(NPC.UID);
+                if (!NPCDictionary.ContainsKey(NPC.UID))
+                {
+                    NPCDictionary.Add(NPC.UID, NPC);
+                    NonPlayerCharacter[] tmp = new NonPlayerCharacter[NPCDictionary.Count];
+                    NPCDictionary.Values.CopyTo(tmp, 0);
+                    ScreenNPCs = tmp;
+                    return true;
+                }
             }
+            return false;
+        }
+        public bool Remove(Entity Entity)
+        {
+            lock (PlayerDictionary)
+            {
+                if (PlayerDictionary.Remove(Entity.UID))
+                {
+                    Entity[] tmp = new Entity[PlayerDictionary.Count];
+                    PlayerDictionary.Values.CopyTo(tmp, 0);
+                    ScreenPlayers = tmp;
+
+                    Console.WriteLine("Removed {0} From {1} Screen", Entity.Name, Client.Entity.Name);
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool Remove(NonPlayerCharacter NPC)
+        {
+            lock (NPCDictionary)
+            {
+                if (NPCDictionary.Remove(NPC.UID))
+                {
+                    NonPlayerCharacter[] tmp = new NonPlayerCharacter[NPCDictionary.Count];
+                    NPCDictionary.Values.CopyTo(tmp, 0);
+                    ScreenNPCs = tmp;
+                    return true;
+                }
+            }
+            return false;
         }
 
-        public void Update(bool FullCleanup = false)
+        public void Cleanup()
         {
-            if(FullCleanup)
+            bool remove;
+            lock (PlayerDictionary)
             {
-                Clean();
-            }
-            try
-            {
-                EntityManager.AcquireLock();
-
-                GameClient[] Clients = EntityManager.Clients;
-
-                Parallel.ForEach<GameClient>(Clients, client =>
+                foreach (Entity Entity in ScreenPlayers)
                 {
-                    if (client.UID != Client.UID)
+                    remove = ConquerMath.CalculateDistance(Client.Entity.Location, Entity.Location) > Kernel.ScreenView;
+                    if (remove)
                     {
-                        if (client.Entity.Location.MapID == Client.Entity.Location.MapID)
-                        {
-                            if (ConquerMath.CalculateDistance(client.Entity.Location, Client.Entity.Location) < 17)
-                            {
-                                Add(client.Entity);
-                            }
-                            else
-                            {
-                                Remove(client.Entity);
-                            }
-                        }
-                    }
-                });
+                        GameClient Owner = Entity.Owner;
+                        Owner.Screen.Remove(Client.Entity);
 
-                NonPlayerCharacter[] NPCs = EntityManager.NonPlayingCharacters;
-                Parallel.ForEach<NonPlayerCharacter>(NPCs, npc =>
-                {
-                    if (npc.Location.MapID == Client.Entity.Location.MapID)
-                    {
-                        if (ConquerMath.CalculateDistance(npc.Location, Client.Entity.Location) < 17)
-                        {
-                            Add(npc);
-                        }
-                        else
-                        {
-                            Remove(npc);
-                        }
+                        Remove(Entity);
                     }
-                });
+                }
             }
-            finally
+            lock (NPCDictionary)
             {
-                EntityManager.ReleaseLock();
+                foreach (NonPlayerCharacter NPC in ScreenNPCs)
+                {
+                    remove = ConquerMath.CalculateDistance(Client.Entity.Location, NPC.Location) > Kernel.ScreenView;
+                    if (remove)
+                    {
+                        NPCDictionary.Remove(NPC.UID);
+                    }
+                }
             }
         }
     }

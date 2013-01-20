@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using System.IO;
 namespace GameServer
 {
     public class NpcSpawnLoader
     {
-        const string NPC_HEADER_ID = "NpcID";
-        const string NPC_HEADER_TYPE = "NpcType";
-        const string NPC_HEADER_MAP = "MapID";
-        const string NPC_HEADER_X = "X";
-        const string NPC_HEADER_Y = "Y";
-        const string NPC_HEADER_FLAG = "Flag";
-        const string NPC_HEADER_INTERACTION = "Interaction";
+        const string NPC_HEADER_ID =            "NpcID";
+        const string NPC_HEADER_TYPE =          "NpcType";
+        const string NPC_HEADER_MAP =           "MapID";
+        const string NPC_HEADER_X =             "X";
+        const string NPC_HEADER_Y =             "Y";
+        const string NPC_HEADER_FLAG =          "Flag";
+        const string NPC_HEADER_INTERACTION =   "Interaction";
 
         private Dictionary<uint, NpcSpawnFile> NpcSpawns;
         private const string NPC_SPAWN_LOCATION = "..\\..\\..\\Data Files\\Npc Spawns\\";
@@ -24,26 +22,24 @@ namespace GameServer
             NpcSpawns = new Dictionary<uint, NpcSpawnFile>();
             Load();
         }
+
         private void Load()
         {
             NpcSpawns.Clear();
             DirectoryInfo info = new DirectoryInfo(NPC_SPAWN_LOCATION);
             FileInfo[] NpcFiles = info.GetFiles("*.ini");
-
-
-            
+         
             Parallel.ForEach<FileInfo>(NpcFiles, file =>
             {
                 ProcessNpcInformation(file.FullName);
             });
         }
+
         private void ProcessNpcInformation(string Location)
         {
             NpcSpawnFile Spawn = new NpcSpawnFile();
             Spawn.Location = new Location();
-            string[] Contents = File.ReadAllLines(Location);
-
-            
+            string[] Contents = File.ReadAllLines(Location);            
             
             foreach (string Line in Contents)
             {
@@ -65,7 +61,6 @@ namespace GameServer
             if (!NpcSpawns.ContainsKey(Spawn.UID))
                 NpcSpawns.ThreadSafeAdd(Spawn.UID, Spawn);
         }
-
 
         public NpcSpawnFile[] Spawns
         {

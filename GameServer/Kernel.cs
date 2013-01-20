@@ -6,8 +6,64 @@ using System.Threading.Tasks;
 
 namespace GameServer
 {
+    public delegate int ConquerCallback(Entity Sender, Entity Receiver);
+    public delegate int ConquerCallback<T>(Entity Sender, Entity Receiver, T Param);
+
+    public unsafe class ConquerCallbackKernel
+    {
+        public static ConquerCallback GetScreenReply = new ConquerCallback(ScreenReply);
+
+
+        private static int ScreenReply(Entity Sender, Entity Receiver)
+        {
+            GameClient ReceiverClient = Receiver.Owner;
+            ReceiverClient.Screen.Add(Sender);
+            return 0;
+        }
+    }
     class Kernel
     {
+        public static int ScreenView = 18;
+
+        public static void GetScreen(GameClient Client, ConquerCallback Callback)
+        {
+            Client.Screen.Cleanup();
+
+            try
+            {
+                EntityManager.AcquireLock();
+
+                int Distance = -1;
+
+                GameClient[] Clients = EntityManager.Clients;
+                foreach (GameClient Other in Clients)
+                {
+                    if (Other == null) continue;
+                    if (Other.UID == Client.UID) continue;
+                    if (Other.Entity.Location.MapID != Client.Entity.Location.MapID) continue;
+
+                    Distance = ConquerMath.CalculateDistance(Other.Entity.Location, Client.Entity.Location);
+                    int Distance2 = ConquerMath.CalculateDistance(Other.Entity.Location, Client.Entity.Location, false);
+                    if (Distance <= ScreenView)
+                    {
+                        if (Client.Screen.Add(Other.Entity))
+                        {
+                            if (Callback != null)
+                            {
+                                Callback(Client.Entity, Other.Entity);
+                            }
+                        }
+                    }
+                    Console.WriteLine(Distance + " - " + Distance2);
+                }
+            }
+            finally
+            {
+                EntityManager.ReleaseLock();
+            }          
+        }
+
+
         public static unsafe void HexDump(void* Packet, ushort Size, string Header)
         {
             byte[] Dump = new byte[Size];

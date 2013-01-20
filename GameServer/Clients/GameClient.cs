@@ -91,7 +91,7 @@ namespace GameServer
         }
         public void SendScreen(void* Packet, ushort Size)
         {
-            Entity[] Entities = Screen.Players.Values.ToArray();
+            Entity[] Entities = Screen.Players;
             foreach (Entity entity in Entities)
             {
                 entity.Owner.Send(Packet, Size);
@@ -99,8 +99,11 @@ namespace GameServer
         }
         public void Send(byte[] Packet)
         {
-            Crypto.Encrypt(Packet);
-            Connection.Send(Packet);
+            lock (this)
+            {
+                Crypto.Encrypt(Packet);
+                Connection.Send(Packet);
+            }
         }
         public void Decrypt(byte[] Packet)
         {

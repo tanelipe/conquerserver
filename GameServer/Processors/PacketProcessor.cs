@@ -39,7 +39,7 @@ namespace GameServer.Processors
                     return;
                 }
 
-                //Kernel.HexDump(Packet, "Client -> Server");
+               // Kernel.HexDump(Packet, "Client -> Server");
 
                 switch (*Type)
                 {
@@ -76,8 +76,9 @@ namespace GameServer.Processors
                 ConquerAngle Direction = (ConquerAngle)(Packet->Direction % 8);
                 Client.Entity.Walk(Direction);
 
-                Client.Screen.Update();
                 Client.SendScreen(Packet, Packet->Size);
+                Kernel.GetScreen(Client, null);
+                
             }
             else
             {
@@ -90,10 +91,7 @@ namespace GameServer.Processors
             string[] Parameters = PacketHelper.ParseChat(Packet);
 
             if (CommandProcessor.Process(Client, Parameters))
-                return;
-            
-
-
+                return;           
         }
         private unsafe void HandleItemUsage(GameClient Client, byte* pPacket)
         {
@@ -130,20 +128,22 @@ namespace GameServer.Processors
                             ushort X2 = Packet->ValueD_High;
                             ushort Y2 = Packet->ValueD_Low;
 
-                            double Direction = ConquerMath.PointDirection(Client.Entity.Location.X, Client.Entity.Location.Y, X2, Y2);
-
-                            Console.WriteLine(Direction);
+                            Client.Entity.Angle = ConquerMath.GetAngle(Client.Entity.Location, new Location() { X = X2, Y = Y2 });
 
                             Client.Entity.Location.X = X2;
                             Client.Entity.Location.Y = Y2;
 
-                            Client.Screen.Update();
+                            Client.Send(Packet, Packet->Size);
+
                             Client.SendScreen(Packet, Packet->Size);
+                            Kernel.GetScreen(Client, ConquerCallbackKernel.GetScreenReply);
+                            
                         }                       
                     } break;
                 case GeneralDataID.GetSurroundings:
                     {
-                        Client.Screen.Update(true);
+                        Client.Screen.Wipe();
+                        Kernel.GetScreen(Client, ConquerCallbackKernel.GetScreenReply);
                     } break;
                 case GeneralDataID.ChangeAction:
                     Client.Entity.Action = (ConquerAction)Packet->ValueD_High;

@@ -26,6 +26,7 @@ namespace GameServer.Database
             EquipmentCtrl = new EquipmentCtrl(Connection);
             ItemTypeCtrl = new ItemTypeCtrl(Connection);
             NpcSpawnCtrl = new NpcSpawnCtrl(Connection);
+            NpcSpawnCtrl.Load(EntityManager.NPCs);
         }
         public void LoadEquipment(GameClient Client)
         {
