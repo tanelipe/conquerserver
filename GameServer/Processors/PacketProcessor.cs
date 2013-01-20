@@ -196,7 +196,7 @@ namespace GameServer.Processors
                     Client.Send(Information, Information->Size);
                     Memory.Free(Information);
 
-                    ClientManager.Add(Client);
+                    EntityManager.Add(Client);
                 }
                 else
                 {

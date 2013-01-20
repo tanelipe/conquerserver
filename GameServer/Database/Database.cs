@@ -14,6 +14,7 @@ namespace GameServer.Database
         private LocationDataCtrl LocationCtrl;
         private EquipmentCtrl EquipmentCtrl;
         private ItemTypeCtrl ItemTypeCtrl;
+        private NpcSpawnCtrl NpcSpawnCtrl;
 
         public DatabaseManager()
         {
@@ -24,6 +25,7 @@ namespace GameServer.Database
             LocationCtrl = new LocationDataCtrl(Connection);
             EquipmentCtrl = new EquipmentCtrl(Connection);
             ItemTypeCtrl = new ItemTypeCtrl(Connection);
+            NpcSpawnCtrl = new NpcSpawnCtrl(Connection);
         }
         public void LoadEquipment(GameClient Client)
         {

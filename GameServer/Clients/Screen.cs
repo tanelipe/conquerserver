@@ -35,7 +35,6 @@ namespace GameServer
             {
                 EntitySpawn SpawnPacket = PacketHelper.EntitySpawn(Entity);
                 Client.Send(&SpawnPacket, SpawnPacket.Size);
-
             }
             Players.ThreadSafeAdd(Entity.UID, Entity);
         
@@ -53,23 +52,24 @@ namespace GameServer
         {
             NonPlayingCharacters.ThreadSafeAdd(NPC.UID, NPC);
         }
-
-        private void Remove(uint UID, bool Mutual = true)
+        private void Remove(Entity Entity, bool Mutual = true)
         {
-            if (Players.ContainsKey(UID))
+            if (Players.ContainsKey(Entity.UID))
             {
-
                 if (Mutual)
                 {
-                    Entity Entity = Players[UID];
-                    Entity.Owner.Screen.Remove(UID, false);
+                    Entity Other = Players[Entity.UID];
+                    Other.Owner.Screen.Remove(Client.Entity, false);
                 }
-                Players.ThreadSafeRemove(UID);
+                Players.ThreadSafeRemove(Entity.UID);
             }
-            if (Monsters.ContainsKey(UID))
-                Monsters.ThreadSafeRemove(UID);
-            if (NonPlayingCharacters.ContainsKey(UID))
-                NonPlayingCharacters.ThreadSafeRemove(UID);
+        }
+        private void Remove(NonPlayerCharacter NPC)
+        {
+            if (NonPlayingCharacters.ContainsKey(NPC.UID))
+            {
+                Players.ThreadSafeRemove(NPC.UID);
+            }
         }
 
         public void Update(bool FullCleanup = false)
@@ -80,27 +80,47 @@ namespace GameServer
             }
             try
             {
-                ClientManager.AcquireLock();
+                EntityManager.AcquireLock();
 
-                GameClient[] Clients = ClientManager.Clients;
-                foreach (GameClient Other in Clients)
+                GameClient[] Clients = EntityManager.Clients;
+
+                Parallel.ForEach<GameClient>(Clients, client =>
                 {
-                    if (Other.UID == Client.UID) continue;
-                    if (Other.Entity.Location.MapID != Client.Entity.Location.MapID) continue;
+                    if (client.UID != Client.UID)
+                    {
+                        if (client.Entity.Location.MapID == Client.Entity.Location.MapID)
+                        {
+                            if (ConquerMath.CalculateDistance(client.Entity.Location, Client.Entity.Location) < 17)
+                            {
+                                Add(client.Entity);
+                            }
+                            else
+                            {
+                                Remove(client.Entity);
+                            }
+                        }
+                    }
+                });
 
-                    if (ConquerMath.CalculateDistance(Client.Entity.Location, Other.Entity.Location) < 17)
+                NonPlayerCharacter[] NPCs = EntityManager.NonPlayingCharacters;
+                Parallel.ForEach<NonPlayerCharacter>(NPCs, npc =>
+                {
+                    if (npc.Location.MapID == Client.Entity.Location.MapID)
                     {
-                        Add(Other.Entity);
+                        if (ConquerMath.CalculateDistance(npc.Location, Client.Entity.Location) < 17)
+                        {
+                            Add(npc);
+                        }
+                        else
+                        {
+                            Remove(npc);
+                        }
                     }
-                    else
-                    {
-                        Remove(Other.Entity.UID);
-                    }
-                }
+                });
             }
             finally
             {
-                ClientManager.ReleaseLock();
+                EntityManager.ReleaseLock();
             }
         }
     }

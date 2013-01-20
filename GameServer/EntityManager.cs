@@ -2,25 +2,37 @@
 using System.Threading;
 namespace GameServer
 {
-    public class ClientManager
+    public class EntityManager
     {
         private static Dictionary<uint, GameClient> GameClients;
+        private static Dictionary<uint, NonPlayerCharacter> NPCs;
         private static object Lock;
         
-        static ClientManager()
+        static EntityManager()
         {
             GameClients = new Dictionary<uint, GameClient>();
+            NPCs = new Dictionary<uint, NonPlayerCharacter>();
             Lock = new object();
         }
 
         public static void AcquireLock()
         {
-            Monitor.Enter(Lock);            
+            if (!Monitor.IsEntered(Lock))
+                Monitor.Enter(Lock);
         }
         public static void ReleaseLock()
         {
             if (Monitor.IsEntered(Lock))
                 Monitor.Exit(Lock);
+        }
+
+        public static void Add(NonPlayerCharacter NPC)
+        {
+            NPCs.ThreadSafeAdd(NPC.UID, NPC);
+        }
+        public static void Remove(NonPlayerCharacter NPC)
+        {
+            NPCs.ThreadSafeRemove(NPC.UID);
         }
 
         public static void Add(GameClient Client)
@@ -31,19 +43,21 @@ namespace GameServer
         {
             GameClients.ThreadSafeRemove(Client.UID);
         }
-        public static GameClient Get(uint UID)
-        {
-            if (GameClients.ContainsKey(UID))
-                return GameClients[UID];
-            else
-                return null; 
-        }
         public static GameClient[] Clients
         {
             get
             {
                 GameClient[] tmp = new GameClient[GameClients.Count];
                 GameClients.Values.CopyTo(tmp, 0);
+                return tmp;
+            }
+        }
+        public static NonPlayerCharacter[] NonPlayingCharacters
+        {
+            get
+            {
+                NonPlayerCharacter[] tmp = new NonPlayerCharacter[NPCs.Count];
+                NPCs.Values.CopyTo(tmp, 0);
                 return tmp;
             }
         }
