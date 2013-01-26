@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using NetworkLibrary;
 using AuthenticationServer.Database;
 namespace AuthenticationServer
@@ -12,6 +10,7 @@ namespace AuthenticationServer
         private static DatabaseManager Database;
         static void Main(string[] args)
         {
+            Console.Title = "ConquerServer - Authentication";
             AuthServerSocket Server = new AuthServerSocket();
             Server.OnClientConnected = OnClientConnect;
             Server.OnClientDisconnected = OnClientDisconnect;
@@ -24,7 +23,7 @@ namespace AuthenticationServer
             bool Running = true;
             while (Running)
             {
-               
+                Thread.Sleep(1);               
             }
         }
         private static bool CheckCommand(string Command, string Input)

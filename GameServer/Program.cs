@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using NetworkLibrary;
 using GameServer.Processors;
 using GameServer.Database;
@@ -17,6 +18,8 @@ namespace GameServer
 
         static void Main(string[] args)
         {
+            Console.Title = "ConquerServer - Game";
+
             GameServerSocket Server = new GameServerSocket() ;
             Server.OnClientConnected = OnClientConnect;
             Server.OnClientDisconnected = OnClientDisconnect;
@@ -31,7 +34,7 @@ namespace GameServer
 
             while (true)
             {
-
+                Thread.Sleep(1);
             }
         }
         private static void OnClientConnect(WinsockClient Socket, object NullParam)

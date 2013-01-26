@@ -55,21 +55,23 @@ namespace GameServer
                     }
                 }
 
-                NonPlayerCharacter[] NPCs = EntityManager.NonPlayingCharacters;
-                foreach (NonPlayerCharacter npc in NPCs)
+                NonPlayerCharacter[] NPCs = EntityManager.GetNonPlayingCharacters(Client.Entity.Location.MapID);
+                if (NPCs != null)
                 {
-                    if (npc.Location.MapID != Client.Entity.Location.MapID) continue;
-                    Distance = ConquerMath.CalculateDistance(npc.Location, Client.Entity.Location);
-                    if (Distance <= ScreenView)
+                    foreach (NonPlayerCharacter npc in NPCs)
                     {
-                        if (Client.Screen.Add(npc))
+                        if (npc.Location.MapID != Client.Entity.Location.MapID) continue;
+                        Distance = ConquerMath.CalculateDistance(npc.Location, Client.Entity.Location);
+                        if (Distance <= ScreenView)
                         {
-                            NpcSpawn Spawn = npc.GetSpawnPacket();
-                            Client.Send(&Spawn, Spawn.Size);
+                            if (Client.Screen.Add(npc))
+                            {
+                                NpcSpawn Spawn = npc.GetSpawnPacket();
+                                Client.Send(&Spawn, Spawn.Size);
+                            }
                         }
                     }
                 }
-
             }
             finally
             {

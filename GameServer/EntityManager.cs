@@ -5,13 +5,13 @@ namespace GameServer
     public class EntityManager
     {
         public static Dictionary<uint, GameClient> GameClients;
-        public static Dictionary<uint, NonPlayerCharacter> NPCs;
+        public static Dictionary<ushort, List<NonPlayerCharacter>> NPCs;
         private static object Lock;
         
         static EntityManager()
         {
             GameClients = new Dictionary<uint, GameClient>();
-            NPCs = new Dictionary<uint, NonPlayerCharacter>();
+            NPCs = new Dictionary<ushort, List<NonPlayerCharacter>>();
            
             Lock = new object();
         }
@@ -29,11 +29,39 @@ namespace GameServer
 
         public static void Add(NonPlayerCharacter NPC)
         {
-            NPCs.ThreadSafeAdd(NPC.UID, NPC);
+            ushort Map = NPC.Location.MapID;
+            lock (NPCs)
+            {
+                List<NonPlayerCharacter> npcs;
+                if (NPCs.ContainsKey(Map))
+                {
+                    npcs = NPCs[Map];
+                    npcs.Add(NPC);
+                    NPCs[Map] = npcs;
+                }
+                else
+                {
+                    npcs = new List<NonPlayerCharacter>();
+                    npcs.Add(NPC);
+                    NPCs.Add(Map, npcs);
+                }
+            }
+            //NPCs.ThreadSafeAdd(NPC.UID, NPC);
         }
         public static void Remove(NonPlayerCharacter NPC)
         {
-            NPCs.ThreadSafeRemove(NPC.UID);
+            lock (NPCs)
+            {
+                ushort MapID = NPC.Location.MapID;
+                List<NonPlayerCharacter> npcs;
+                if (NPCs.ContainsKey(MapID))
+                {
+                    npcs = NPCs[MapID];
+                    npcs.Remove(NPC);
+                    NPCs[MapID] = npcs;
+                }
+            }
+            // NPCs.ThreadSafeRemove(NPC.UID);
         }
 
         public static void Add(GameClient Client)
@@ -53,14 +81,15 @@ namespace GameServer
                 return tmp;
             }
         }
-        public static NonPlayerCharacter[] NonPlayingCharacters
+
+        public static NonPlayerCharacter[] GetNonPlayingCharacters(ushort MapID)
         {
-            get
+            if (NPCs.ContainsKey(MapID))
             {
-                NonPlayerCharacter[] tmp = new NonPlayerCharacter[NPCs.Count];
-                NPCs.Values.CopyTo(tmp, 0);
-                return tmp;
+                List<NonPlayerCharacter> npcs = NPCs[MapID];
+                return npcs.ToArray();
             }
+            return null;
         }
     }
 }
