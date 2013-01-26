@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using GameServer.Database;
 namespace GameServer.Processors
 {
@@ -49,6 +50,7 @@ namespace GameServer.Processors
                     case 0x3F1: HandleItemUsage(Client, pPacket); break;
                     case 0x3F2: HandleGeneralData(Client, pPacket); break;
                     case 0x41C: HandleTransfer(Client, pPacket); break;
+                    case 0x7EF: HandleNPCInitialize(Client, pPacket); break;
                     
                 }
             }
@@ -66,6 +68,14 @@ namespace GameServer.Processors
 
                 Process(Client, Header);
                 Process(Client, Footer);
+            }
+        }
+        private void HandleNPCInitialize(GameClient Client, byte* pPacket)
+        {
+            NpcInitialize* Packet = (NpcInitialize*)pPacket;
+            switch (Packet->UID)
+            {
+
             }
         }
         private void HandleMovement(GameClient Client, byte* pPacket)
@@ -90,7 +100,28 @@ namespace GameServer.Processors
             string[] Parameters = PacketHelper.ParseChat(Packet);
 
             if (CommandProcessor.Process(Client, Parameters))
-                return;           
+                return;
+
+            switch (Packet->ChatType)
+            {
+                case ChatType.Talk:
+                    Client.SendScreen(Packet, Packet->Size);
+                    break;
+                case ChatType.Whisper:
+                    GameClient Receiver = EntityManager.FindByName(Parameters[1]);
+                    if (Receiver != null)
+                    {
+                        Receiver.Send(Packet, Packet->Size);
+                    }
+                    else
+                    {
+                        Client.Message("It appears that " + Parameters[1] + " is offline", ChatType.Top, Color.White);
+                    }
+                    break;
+            }
+
+           // if(Packet->ChatType == ChatType.Talk)
+           //     Client.SendScreen(Packet, Packet->Size);
         }
         private unsafe void HandleItemUsage(GameClient Client, byte* pPacket)
         {
@@ -156,7 +187,6 @@ namespace GameServer.Processors
                 case GeneralDataID.EnterPortal:
                    
                     Client.Teleport(1002, 400, 400);
-                    Client.Message("Portals are not implemeted yet.", ChatType.Center);
                     break;
                 case GeneralDataID.ChangeAvatar:
                     {

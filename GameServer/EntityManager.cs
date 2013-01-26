@@ -16,6 +16,18 @@ namespace GameServer
             Lock = new object();
         }
 
+        public static GameClient FindByName(string Name)
+        {
+            GameClient[] clients = Clients;
+            foreach (GameClient client in clients)
+            {
+                if (client.Entity.Name == Name)
+                {
+                    return client;
+                }
+            }
+            return null;
+        }
         public static void AcquireLock()
         {
             if (!Monitor.IsEntered(Lock))

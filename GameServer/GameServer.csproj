@@ -39,6 +39,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\SQLite\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -78,6 +79,7 @@
     <Compile Include="Packets\EntitySpawn.cs" />
     <Compile Include="Packets\GeneralData.cs" />
     <Compile Include="Packets\ItemUsage.cs" />
+    <Compile Include="Packets\NpcInteraction.cs" />
     <Compile Include="Packets\NpcSpawn.cs" />
     <Compile Include="Packets\StatusUpdate.cs" />
     <Compile Include="Processors\CommandProcessor.cs" />

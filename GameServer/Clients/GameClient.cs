@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 using System.Threading.Tasks;
 using NetworkLibrary;
 namespace GameServer
@@ -155,13 +156,15 @@ namespace GameServer
             SendScreen(Packet, Packet->Size);
             Memory.Free(Packet);
         }
-        public void Message(string Message, ChatType Type, string From = "SYSTEM", string To = "ALLUSERS")
+        public void Message(string Message, ChatType Type, Color Color, string From = "SYSTEM", string To = "ALLUSERS")
         {
             Chat* Packet = PacketHelper.CreateChat(From, To, Message);
             Packet->ChatType = Type;
             Packet->ID = Entity.UID;
+            Packet->Color = (uint)Color.ToArgb();
             Send(Packet, Packet->Size);
             Memory.Free(Packet);
+           
         }
     }
 }
