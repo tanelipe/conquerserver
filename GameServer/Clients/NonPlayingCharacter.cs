@@ -14,8 +14,9 @@
             Spawn.UID = UID;
             Spawn.X = Location.X;
             Spawn.Y = Location.Y;
-            Spawn.TypeDirection = (ushort)(Type + (byte)Angle);
+            Spawn.SubType = Type;
             Spawn.Interaction = Interaction;
+            Spawn.Direction = (ushort)Angle;
             return Spawn;
         }
         public override EntityFlag GetFlag()

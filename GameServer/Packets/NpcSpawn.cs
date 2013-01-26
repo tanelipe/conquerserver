@@ -2,12 +2,13 @@
 {
     public struct NpcSpawn
     {
-        public ushort Size;
-        public ushort Type;
-        public uint UID;
-        public ushort X;
-        public ushort Y;
-        public ushort TypeDirection;
-        public ushort Interaction;
+        public ushort Size; // 0
+        public ushort Type; // 2
+        public uint UID; // 4
+        public ushort X; // 8
+        public ushort Y; // 10
+        public ushort SubType; // 12
+        public ushort Interaction; // 14
+        public ushort Direction;
     }
 }

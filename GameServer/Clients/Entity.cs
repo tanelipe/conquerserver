@@ -9,6 +9,8 @@ namespace GameServer
     public unsafe class Entity : IEntity<EntitySpawn>
     {
         public GameClient Owner;
+        private Dictionary<ConquerStatusIDs, StatusUpdateEntry> PendingUpdates;
+
 
         private byte avatar;
         public byte Avatar
@@ -19,16 +21,7 @@ namespace GameServer
                 avatar = value;
                 if (Owner.Status == LoginStatus.Complete)
                 {
-                    StatusUpdateEntry Entry = new StatusUpdateEntry()
-                    {
-                        Type = ConquerStatusIDs.Model,
-                        Value = Model
-                    };
-
-                    StatusUpdate* Update = PacketHelper.UpdatePacket(Entry);
-                    Update->UID = UID;
-                    Owner.SendScreen(Update, Update->Size, true);
-                    Memory.Free(Update);
+                    AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Model, Model));
                 }
             }
         }
@@ -45,10 +38,7 @@ namespace GameServer
 
                 if (Owner.Status == LoginStatus.Complete)
                 {
-                    StatusUpdate* Update = PacketHelper.UpdatePacket(StatusUpdateEntry.Gold(money));
-                    Update->UID = UID;
-                    Owner.Send(Update, Update->Size);
-                    Memory.Free(Update);
+                    AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Money, value));
                 }
             }
         }
@@ -74,10 +64,31 @@ namespace GameServer
 
             Equipment = new Dictionary<ItemPosition, ConquerItem>();
             StatusPoints = new StatusPoints();
-
+            PendingUpdates = new Dictionary<ConquerStatusIDs, StatusUpdateEntry>();
             Spouse = "NONE";       
         }
-        
+
+        public void BeginStatusUpdates()
+        {
+            PendingUpdates.Clear();
+        }
+        public void AddStatusUpdate(StatusUpdateEntry Entry)
+        {
+            PendingUpdates.ThreadSafeAdd(Entry.Type, Entry);
+        }
+        public void EndStatusUpdates()
+        {
+            lock (PendingUpdates)
+            {
+                StatusUpdateEntry[] Entries = PendingUpdates.Values.ToArray();
+                StatusUpdate* Update = PacketHelper.UpdatePacket(Entries);
+                Update->UID = UID;
+                Owner.Send(Update, Update->Size);
+                Memory.Free(Update);
+
+                PendingUpdates.Clear();
+            }
+        }  
         public override EntityFlag GetFlag()
         {
             return EntityFlag.Player;

@@ -76,9 +76,8 @@ namespace GameServer.Processors
                 ConquerAngle Direction = (ConquerAngle)(Packet->Direction % 8);
                 Client.Entity.Walk(Direction);
 
-                Client.SendScreen(Packet, Packet->Size);
-                Kernel.GetScreen(Client, null);
-                
+                Client.SendScreen(Packet, Packet->Size, true);
+                Kernel.GetScreen(Client, null);                
             }
             else
             {
@@ -163,9 +162,13 @@ namespace GameServer.Processors
                     {
                         if (Client.Entity.Money >= 500)
                         {
+                            Client.Entity.BeginStatusUpdates();
+
                             Client.Entity.Money -= 500;
                             Client.Entity.Avatar = (byte)Packet->ValueD_High;
-                            //Client.SendScreen(Packet, Packet->Size, true);                          
+
+                            Client.Entity.EndStatusUpdates();
+                                             
                         }
                     } break;
                 default:

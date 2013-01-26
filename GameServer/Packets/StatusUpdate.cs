@@ -23,6 +23,13 @@ namespace GameServer
         [FieldOffset(4)]
         public uint Value;
 
+        public static StatusUpdateEntry Create(ConquerStatusIDs ID, uint Value)
+        {
+            StatusUpdateEntry Entry = new StatusUpdateEntry();
+            Entry.Type = ID;
+            Entry.Value = Value;
+            return Entry;
+        }
 
         public static StatusUpdateEntry Gold(uint Amount)
         {
