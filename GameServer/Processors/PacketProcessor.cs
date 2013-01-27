@@ -7,11 +7,12 @@ namespace GameServer.Processors
     {
         private CommandProcessor CommandProcessor;
         private DatabaseManager Database;
-
+        private Scripting.NpcScripting ScriptEngine;
         public PacketProcessor(DatabaseManager Database)
         {
             this.Database = Database;
             CommandProcessor = new CommandProcessor();
+            ScriptEngine = new Scripting.NpcScripting();
         }
 
         public void Process(GameClient Client, byte[] Chunk)
@@ -73,10 +74,7 @@ namespace GameServer.Processors
         private void HandleNPCInitialize(GameClient Client, byte* pPacket)
         {
             NpcInitialize* Packet = (NpcInitialize*)pPacket;
-            switch (Packet->UID)
-            {
-
-            }
+            ScriptEngine.Compile(Client, Packet->UID);
         }
         private void HandleMovement(GameClient Client, byte* pPacket)
         {

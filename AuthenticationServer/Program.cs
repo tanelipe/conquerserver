@@ -2,6 +2,8 @@
 using System.Text;
 using System.Threading;
 using NetworkLibrary;
+using System.Net;
+using System.Net.Sockets;
 using AuthenticationServer.Database;
 namespace AuthenticationServer
 {
@@ -64,6 +66,22 @@ namespace AuthenticationServer
                             {
                                 if (Database.AccountExists(Username, Password, Client))
                                 {
+#if LOCAL_VERSION
+                                    IPHostEntry entry = Dns.GetHostEntry(Dns.GetHostName());
+                                    foreach (IPAddress address in entry.AddressList)
+                                    {
+                                        if (address.AddressFamily == AddressFamily.InterNetwork)
+                                        {
+                                            string local_ip = address.ToString();
+                                            if (local_ip.StartsWith("10"))
+                                            {
+                                                Address = local_ip;
+                                                break;
+                                            }
+                                        }
+                                               
+                                    }
+#endif
                                     SendAuthResponse(Client, Address, 5816);
                                 }
                                 else
