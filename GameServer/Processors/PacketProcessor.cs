@@ -11,7 +11,7 @@ namespace GameServer.Processors
         public PacketProcessor(DatabaseManager Database)
         {
             this.Database = Database;
-            CommandProcessor = new CommandProcessor();
+            CommandProcessor = new CommandProcessor(Database);
             ScriptEngine = new Scripting.NpcScripting();
         }
 
@@ -171,8 +171,12 @@ namespace GameServer.Processors
                     } break;
                 case GeneralDataID.GetSurroundings:
                     {
+                        Database.LoadEquipment(Client);
+
                         Client.Screen.Wipe();
                         Kernel.GetScreen(Client, ConquerCallbackKernel.GetScreenReply);
+
+
                     } break;
                 case GeneralDataID.ChangeAction:
                     Client.Entity.Action = (ConquerAction)Packet->ValueD_High;

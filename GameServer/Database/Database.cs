@@ -15,6 +15,7 @@ namespace GameServer.Database
         private EquipmentCtrl EquipmentCtrl;
         private ItemTypeCtrl ItemTypeCtrl;
         private NpcSpawnCtrl NpcSpawnCtrl;
+        private ItemsCtrl ItemCtrl;
 
         public DatabaseManager()
         {
@@ -26,9 +27,20 @@ namespace GameServer.Database
             EquipmentCtrl = new EquipmentCtrl(Connection);
             ItemTypeCtrl = new ItemTypeCtrl(Connection);
             NpcSpawnCtrl = new NpcSpawnCtrl(Connection);
+            ItemCtrl = new ItemsCtrl(Connection);
 
             NpcSpawnCtrl.Load();
         }
+        public ItemDetail GetItemDetail(string Name, string Quality)
+        {
+            ItemDetail details = new ItemDetail();
+            if (ItemTypeCtrl.LoadItemDetail(Name, Quality, out details))
+            {
+                return details;
+            }
+            throw new Exception(string.Format("Item {0} Quality {1} doesn't exist", Name, Quality));
+        }
+
         public void LoadEquipment(GameClient Client)
         {
             EquipmentCtrl.LoadEquipment(Client);

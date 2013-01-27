@@ -28,6 +28,8 @@ namespace GameServer
             ItemTypeLoader = new ItemTypeLoader();
             ItemTypeLoader.LoadItems();
 
+
+
             while (true)
             {
                 Thread.Sleep(1);

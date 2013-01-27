@@ -68,6 +68,12 @@ namespace GameServer
             Spouse = "NONE";       
         }
 
+        public void AddEquipment(ConquerItem Item)
+        {
+            Equipment.ThreadSafeAdd(Item.Position, Item);
+            Item.Send(Owner);
+        }
+
         public void BeginStatusUpdates()
         {
             PendingUpdates.Clear();

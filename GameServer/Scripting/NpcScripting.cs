@@ -52,8 +52,6 @@ namespace GameServer.Scripting
                     Type type = instance.GetType();
                     type.GetMethod("Process").Invoke(instance, new object[] { Client, ID, 0, "" });
                 }
-
-                //classInstance.GetType().GetMethod("Message").Invoke(classInstance, new object[] { "NPC ID: " + ID });
             }
             else
             {

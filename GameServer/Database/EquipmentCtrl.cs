@@ -25,7 +25,7 @@ namespace GameServer.Database
             SQLiteDataReader Reader = Command.ExecuteReader();
             while (Reader.Read())
             {
-                ConquerItem Item = new ConquerItem();
+                ConquerItem Item = new ConquerItem(Client);
                 Item.ID = Convert.ToUInt32(Reader["ItemID"]);
                 Item.Plus = Convert.ToByte(Reader["Plus"]);
                 Item.SocketOne = Convert.ToByte(Reader["SocketOne"]);
@@ -36,7 +36,7 @@ namespace GameServer.Database
                 Item.Effect = Convert.ToUInt16(Reader["Effect"]);
                 Item.Position = (ItemPosition)Convert.ToByte(Reader["Position"]);
 
-                Client.Entity.Equipment.ThreadSafeAdd(Item.Position, Item);
+                Client.Entity.AddEquipment(Item);
             }
             Reader.Close();
         }
@@ -51,23 +51,7 @@ namespace GameServer.Database
             Command.CommandText = "CREATE TABLE Equipments(ID integer PRIMARY KEY AUTOINCREMENT, " +
                                   "EntityUID integer, ItemID integer, Plus integer, SocketOne integer, SocketTwo integer, " +
                                   "Mode integer, Durability integer, MaxDurability integer, Effect integer, Position integer);";
-            Command.ExecuteNonQuery();
-
-                                  
-                                  /*
-                                   *  public uint UID { get; set; }
-        public uint ID { get; set; }
-        public byte Plus { get; set; }
-        public byte SocketOne { get; set; }
-        public byte SocketTwo { get; set; }
-        public ushort Mode { get; set; }
-        public ushort Durability { get; set; }
-        public ushort MaxDurability { get; set; }
-        public ushort Effect { get; set; }
-        public ItemPosition Position { get; set; }
-                                   * */
-
-                                  
+            Command.ExecuteNonQuery();                                  
         }
     }
 }

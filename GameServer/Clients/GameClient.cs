@@ -1,57 +1,10 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
-using System.Threading.Tasks;
 using NetworkLibrary;
 namespace GameServer
 {
-    public class PacketQueue
-    {
-        private List<byte> Queue;
-        private byte[] Data;
-        
-        public PacketQueue()
-        {
-            Queue = new List<byte>();
-        }
-        public void Push(byte[] Packet)
-        {
-            lock (Queue)
-            {
-                Queue.AddRange(Packet);
-                Data = Queue.ToArray();
-            }
-        }
-        public byte[] Pop()
-        {
-            lock (Queue)
-            {
-                if (Data.Length < 2) return null;
-                ushort Size = BitConverter.ToUInt16(Data, 0);
-                if (Size > Data.Length)
-                {
-                    // Framentation, rest of packet should follow in the next transmission(s)
-                    return null;
-                }
-                else
-                {
-                    byte[] Packet = new byte[Size];
-                    Buffer.BlockCopy(Data, 0, Packet, 0, Size);
 
-                    Queue.RemoveRange(0, Size);
-                    Data = Queue.ToArray();
-
-                    return Packet;
-                }
-            }
-        }
-        public int Size
-        {
-            get { return Queue == null ? -1 : Queue.Count; }
-        }
-    }
     public unsafe class GameClient
     {
         private WinsockClient Connection;
@@ -64,6 +17,8 @@ namespace GameServer
         public LoginStatus Status;
         private PacketQueue Queue;
 
+        public List<ConquerItem> Inventory;
+
         public GameClient(WinsockClient Connection)
         {
             this.Connection = Connection;
@@ -75,6 +30,8 @@ namespace GameServer
             Queue = new PacketQueue();
             Screen = new Screen(this);
             Status = LoginStatus.Logging;
+
+            Inventory = new List<ConquerItem>();
         }
 
         public PacketQueue Packets
@@ -164,7 +121,21 @@ namespace GameServer
             Packet->Color = (uint)Color.ToArgb();
             Send(Packet, Packet->Size);
             Memory.Free(Packet);
-           
+        }
+
+        public bool AddInventory(ConquerItem Item)
+        {
+            lock (Inventory)
+            {
+                if (Inventory.Count < 40)
+                {
+                    Item.Position = ItemPosition.Inventory;
+                    Item.Send(this);
+                    Inventory.Add(Item);
+                    return true;
+                }
+                return false;
+            }
         }
     }
 }
