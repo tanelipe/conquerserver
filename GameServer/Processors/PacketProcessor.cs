@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Drawing;
 using GameServer.Database;
+using GameServer.Scripting;
 namespace GameServer.Processors
 {
     public unsafe class PacketProcessor
     {
         private CommandProcessor CommandProcessor;
+        private NpcScripting NpcScriptEngine;
         private DatabaseManager Database;
-        private Scripting.NpcScripting ScriptEngine;
+        
+
         public PacketProcessor(DatabaseManager Database)
         {
             this.Database = Database;
             CommandProcessor = new CommandProcessor(Database);
-            ScriptEngine = new Scripting.NpcScripting();
+            NpcScriptEngine = new NpcScripting();
         }
 
         public void Process(GameClient Client, byte[] Chunk)
@@ -51,7 +54,11 @@ namespace GameServer.Processors
                     case 0x3F1: HandleItemUsage(Client, pPacket); break;
                     case 0x3F2: HandleGeneralData(Client, pPacket); break;
                     case 0x41C: HandleTransfer(Client, pPacket); break;
-                    case 0x7EF: HandleNPCInitialize(Client, pPacket); break;
+
+                    case 0x7EF: 
+                    case 0x7F0:
+                        HandleNpcDialogue(Client, pPacket); 
+                        break;
                     
                 }
             }
@@ -71,10 +78,28 @@ namespace GameServer.Processors
                 Process(Client, Footer);
             }
         }
-        private void HandleNPCInitialize(GameClient Client, byte* pPacket)
+   
+        private void HandleNpcDialogue(GameClient Client, byte* pPacket)
         {
-            NpcInitialize* Packet = (NpcInitialize*)pPacket;
-            ScriptEngine.Compile(Client, Packet->UID);
+            PacketHeader* Header = (PacketHeader*)pPacket;
+            if (Header->Type == 0x7EF)
+            {
+                NpcInitialize* Packet = (NpcInitialize*)pPacket;
+                NpcScriptEngine.Initialize(Client, Packet->UID);
+            }
+            else
+            {
+                NpcDialog* Packet = (NpcDialog*)pPacket;
+                if (Packet->OptionID != 255)
+                {
+                    string Input = new string(Packet->Input, 1, Packet->Input[0]);
+                    NpcScriptEngine.Process(Client, Packet->OptionID, Input);
+                }
+                else
+                {
+                    Client.ActiveNPC = 0;
+                }
+            }
         }
         private void HandleMovement(GameClient Client, byte* pPacket)
         {
@@ -97,8 +122,15 @@ namespace GameServer.Processors
             Chat* Packet = (Chat*)pPacket;
             string[] Parameters = PacketHelper.ParseChat(Packet);
 
-            if (CommandProcessor.Process(Client, Parameters))
+            CommandAction Action = CommandAction.None;
+            if ((Action = CommandProcessor.Process(Client, Parameters)) != CommandAction.None)
+            {
+                if (Action == CommandAction.ClearNpcScripts)
+                {
+                    NpcScriptEngine.Clear();
+                }
                 return;
+            }
 
             switch (Packet->ChatType)
             {

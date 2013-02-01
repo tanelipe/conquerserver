@@ -13,6 +13,7 @@ namespace GameServer
         public Screen Screen;
         public uint UID;
 
+        public uint ActiveNPC;
 
         public LoginStatus Status;
         private PacketQueue Queue;

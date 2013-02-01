@@ -3,6 +3,11 @@ using System.Drawing;
 using GameServer.Database;
 namespace GameServer.Processors
 {
+    public enum CommandAction
+    {
+        None,
+        ClearNpcScripts
+    }
     public unsafe class CommandProcessor
     {
         private DatabaseManager Database;
@@ -11,7 +16,7 @@ namespace GameServer.Processors
             this.Database = Database;
         }
 
-        public bool Process(GameClient Client, string[] Input)
+        public CommandAction Process(GameClient Client, string[] Input)
         {
             string From = Input[0];
             string To = Input[1];
@@ -63,6 +68,17 @@ namespace GameServer.Processors
                                 Client.AddInventory(Item);
                             }
                         } break;
+                    case "@prof":
+                        {
+                            LearnProfiency Profiency = LearnProfiency.Create();
+                            Profiency.ID = uint.Parse(Command[1]);
+                            Profiency.Level = uint.Parse(Command[2]);
+                            Client.Send(&Profiency, Profiency.Size);
+                        } break;
+                    case "@reload_npc":
+                        {
+                            return CommandAction.ClearNpcScripts;
+                        } break;
                 }
             }
             catch (Exception exception)
@@ -70,7 +86,7 @@ namespace GameServer.Processors
                 Client.Message(exception.Message, ChatType.Top, Color.White);
                 Console.WriteLine(exception.ToString());
             }
-            return CommandProcessed;
+            return CommandAction.None;
         }
     }
 }

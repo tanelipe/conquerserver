@@ -1,67 +1,89 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
 using System.CodeDom.Compiler;
-using Microsoft.CSharp;
-using System.Globalization;
-using System.CodeDom;
-using System.Collections;
-using System.ComponentModel;
 using System.IO;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Collections;
+using System.Reflection;
 namespace GameServer.Scripting
 {
-    partial class NpcScript
-    {
-
-    }
-
-
-
     public class NpcScripting
     {
-   
-        public void Compile(GameClient Client, uint ID)
+        private Dictionary<string, CompilerResults> CompiledScripts;
+        private CompilerParameters Parameters;
+        private CodeDomProvider CodeProvider;
+       
+        public NpcScripting()
         {
-            CodeDomProvider provider = CodeDomProvider.CreateProvider("CSharp");
-            CompilerParameters parameters = new CompilerParameters();
-            parameters.GenerateExecutable = false;
-            parameters.GenerateInMemory = true;
+            CompiledScripts = new Dictionary<string, CompilerResults>();
+            CodeProvider = CodeDomProvider.CreateProvider("CSharp");
+            Parameters = new CompilerParameters();
+            Parameters.GenerateExecutable = false;
+            Parameters.GenerateInMemory = true;
 
             var assemblies = AppDomain.CurrentDomain
                                 .GetAssemblies()
                                 .Where(assembly => !assembly.IsDynamic)
                                 .Select(assembly => assembly.Location);
-            parameters.ReferencedAssemblies.AddRange(assemblies.ToArray());
+            Parameters.ReferencedAssemblies.AddRange(assemblies.ToArray());
+        }
+        public bool Compile(uint ID, out string ScriptFile)
+        {
+            string ScriptDirectory = "..\\..\\Npc Scripts\\";
+            ScriptFile = ID.ToString() + ".cs";
+            if (!File.Exists(ScriptDirectory + ScriptFile))
+                ScriptFile = "Default.cs";
 
-            string ScriptFile = "..\\..\\Npc Scripts\\";
-            if (!File.Exists(ScriptFile + ID.ToString() + ".cs"))
-                ScriptFile = ScriptFile + "Default.cs";
-            else
-                ScriptFile = ScriptFile + ID.ToString() + ".cs";
-
-            CompilerResults results = provider.CompileAssemblyFromFile(parameters, ScriptFile);
-            if (results.Errors.Count == 0)
-            {     
-                var instance = results.CompiledAssembly.CreateInstance("NpcScriptEngine.NpcDialog");
-                if (instance != null)
-                {
-                    Type type = instance.GetType();
-                    type.GetMethod("Process").Invoke(instance, new object[] { Client, ID, 0, "" });
-                }
-            }
-            else
+            if (!CompiledScripts.ContainsKey(ScriptFile))
             {
-                foreach (CompilerError error in results.Errors)
+                CompilerResults Results = CodeProvider.CompileAssemblyFromFile(Parameters, ScriptDirectory + ScriptFile);
+                if (Results.Errors.Count == 0)
                 {
-                    Console.WriteLine(error.ToString());
-                    Console.WriteLine();
+                    CompiledScripts.ThreadSafeAdd(ScriptFile, Results);
                 }
             }
+            return CompiledScripts.ContainsKey(ScriptFile);
+        }
 
+        public void Initialize(GameClient Client, uint ID)
+        {
+            string ScriptFile = "";
+            if (Compile(ID, out ScriptFile))
+            {
+                Client.ActiveNPC = ID;
+
+                CompilerResults Results = CompiledScripts[ScriptFile];
+                object ClassInstance = Results.CompiledAssembly.CreateInstance("NpcScriptEngine.NpcDialog");
+                if (ClassInstance != null)
+                {
+                    MethodInfo Method = ClassInstance.GetType().GetMethod("Initialize");
+                    if (Method != null)
+                    {
+                        Method.Invoke(ClassInstance, new object[] { Client });
+                    }
+                }
+            }
+        }
+        public void Process(GameClient Client, byte OptionID, string Input)
+        {
+            string ScriptFile = "";
+            if (Compile(Client.ActiveNPC, out ScriptFile))
+            {
+                CompilerResults Results = CompiledScripts[ScriptFile];
+                object ClassInstance = Results.CompiledAssembly.CreateInstance("NpcScriptEngine.NpcDialog");
+                if (ClassInstance != null)
+                {
+                    MethodInfo Method = ClassInstance.GetType().GetMethod("Process");
+                    if (Method != null)
+                    {
+                        Method.Invoke(ClassInstance, new object[] { Client, OptionID, Input });
+                    }
+                }
+            }
+        }
+        public void Clear()
+        {
+            CompiledScripts.Clear();
         }
     }
 }
