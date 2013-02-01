@@ -23,6 +23,21 @@ namespace GameServer
     }
     public unsafe class Kernel
     {
+        private static DMapLoader DmapLoader;
+
+        public static void LoadMaps()
+        {
+            int Ticks = Environment.TickCount;
+            DmapLoader = new DMapLoader();
+            DmapLoader.LoadGameMap();
+            DmapLoader.LoadMaps();
+            Console.WriteLine("Loaded maps in {0} ticks!", Environment.TickCount - Ticks);
+        }
+        public static bool IsWalkable(ushort MapID, ushort X, ushort Y)
+        {
+            return DmapLoader.GetAccessible(MapID, X, Y);
+        }
+
         public static int ScreenView = 16;
 
         public static void GetScreen(GameClient Client, ConquerCallback Callback)

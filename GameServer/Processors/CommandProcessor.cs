@@ -39,8 +39,17 @@ namespace GameServer.Processors
                         } break;
                     case "@mm":
                         {
-                            if(Command.Length >= 3) {
-                                Client.Teleport(ushort.Parse(Command[1]), ushort.Parse(Command[2]), ushort.Parse(Command[3]));
+                            ushort MapID = ushort.Parse(Command[1]);
+                            ushort X = ushort.Parse(Command[2]);
+                            ushort Y = ushort.Parse(Command[3]);
+
+                            if (Kernel.IsWalkable(MapID, X, Y))
+                            {
+                                Client.Teleport(MapID, X, Y);
+                            }
+                            else
+                            {
+                                Client.Message(string.Format("You can't teleport to {0} {1} {2}", MapID, X, Y), ChatType.Top, Color.Red);
                             }
                         } break;
                     case "@gold":

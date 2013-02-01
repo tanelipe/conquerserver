@@ -108,9 +108,16 @@ namespace GameServer.Processors
             {
                 ConquerAngle Direction = (ConquerAngle)(Packet->Direction % 8);
                 Client.Entity.Walk(Direction);
-
-                Client.SendScreen(Packet, Packet->Size, true);
-                Kernel.GetScreen(Client, null);                
+                if (!Kernel.IsWalkable(Client.Entity.Location.MapID,
+                        Client.Entity.Location.X, Client.Entity.Location.Y))
+                {
+                    Client.Disconnect();
+                }
+                else
+                {
+                    Client.SendScreen(Packet, Packet->Size, true);
+                    Kernel.GetScreen(Client, null);
+                }
             }
             else
             {
@@ -194,11 +201,19 @@ namespace GameServer.Processors
                             Client.Entity.Location.X = X2;
                             Client.Entity.Location.Y = Y2;
 
-                            Client.Send(Packet, Packet->Size);
+                            if (!Kernel.IsWalkable(Client.Entity.Location.MapID,
+                                Client.Entity.Location.X, Client.Entity.Location.Y))
+                            {
+                                Client.Disconnect();
+                            }
+                            else
+                            {
 
-                            Client.SendScreen(Packet, Packet->Size);
-                            Kernel.GetScreen(Client, ConquerCallbackKernel.GetScreenReply);
-                            
+                                Client.Send(Packet, Packet->Size);
+
+                                Client.SendScreen(Packet, Packet->Size);
+                                Kernel.GetScreen(Client, ConquerCallbackKernel.GetScreenReply);
+                            }
                         }                       
                     } break;
                 case GeneralDataID.GetSurroundings:

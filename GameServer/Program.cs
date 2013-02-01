@@ -28,7 +28,7 @@ namespace GameServer
             ItemTypeLoader = new ItemTypeLoader();
             ItemTypeLoader.LoadItems();
 
-
+            Kernel.LoadMaps();
 
             while (true)
             {
