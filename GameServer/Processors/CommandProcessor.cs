@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Drawing;
 using GameServer.Database;
+using System.Collections;
+using System.Collections.Generic;
 namespace GameServer.Processors
 {
     public enum CommandAction
     {
         None,
+        Processed,
         ClearNpcScripts
     }
     public unsafe class CommandProcessor
     {
         private DatabaseManager Database;
+     
+     
         public CommandProcessor(DatabaseManager Database)
         {
             this.Database = Database;
@@ -25,9 +30,9 @@ namespace GameServer.Processors
             string[] Command = Message.Split(' ');
 
 
-            bool CommandProcessed = false;
+            CommandAction Action = CommandAction.None;
             if (Command[0].StartsWith("@"))
-                CommandProcessed = true;
+                Action = CommandAction.Processed;
 
             try
             {
@@ -43,14 +48,8 @@ namespace GameServer.Processors
                             ushort X = ushort.Parse(Command[2]);
                             ushort Y = ushort.Parse(Command[3]);
 
-                            if (Kernel.IsWalkable(MapID, X, Y))
-                            {
-                                Client.Teleport(MapID, X, Y);
-                            }
-                            else
-                            {
-                                Client.Message(string.Format("You can't teleport to {0} {1} {2}", MapID, X, Y), ChatType.Top, Color.Red);
-                            }
+                            Client.Teleport(MapID, X, Y);
+
                         } break;
                     case "@gold":
                         {
@@ -87,7 +86,7 @@ namespace GameServer.Processors
                     case "@reload_npc":
                         {
                             return CommandAction.ClearNpcScripts;
-                        } break;
+                        }
                 }
             }
             catch (Exception exception)
@@ -95,7 +94,7 @@ namespace GameServer.Processors
                 Client.Message(exception.Message, ChatType.Top, Color.White);
                 Console.WriteLine(exception.ToString());
             }
-            return CommandAction.None;
+            return Action;
         }
     }
 }

@@ -28,6 +28,7 @@ namespace GameServer
 
         public void Wipe()
         {
+            
             PlayerDictionary.Clear();
             ScreenPlayers = new Entity[0];
 
@@ -47,8 +48,6 @@ namespace GameServer
                     Entity[] tmp = new Entity[PlayerDictionary.Count];
                     PlayerDictionary.Values.CopyTo(tmp, 0);
                     ScreenPlayers = tmp;
-
-                    Console.WriteLine("Added {0} To {1} Screen", Entity.Name, Client.Entity.Name);
                     return true;
                 }
             }
@@ -78,8 +77,6 @@ namespace GameServer
                     Entity[] tmp = new Entity[PlayerDictionary.Count];
                     PlayerDictionary.Values.CopyTo(tmp, 0);
                     ScreenPlayers = tmp;
-
-                    Console.WriteLine("Removed {0} From {1} Screen", Entity.Name, Client.Entity.Name);
                     return true;
                 }
             }

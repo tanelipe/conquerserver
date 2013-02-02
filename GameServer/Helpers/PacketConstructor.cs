@@ -2,47 +2,7 @@
 using System;
 namespace GameServer
 {
-    public unsafe class NpcDialogBuilder
-    {
-        public static void Avatar(GameClient Client, ushort ID)
-        {
-            NpcDialog* Packet = PacketHelper.NpcPacket();
-            Packet->OptionType = NpcOptionType.Avatar;
-            Packet->Extra = ID;
-            Client.Send(Packet, Packet->Size);
-            Memory.Free(Packet);
-        }
-        public static void Text(GameClient Client, string Text)
-        {
-            NpcDialog* Packet = PacketHelper.NpcPacket(Text);
-            Packet->OptionType = NpcOptionType.Dialogue;
-            Client.Send(Packet, Packet->Size);
-            Memory.Free(Packet);
-        }
-        public static void Finish(GameClient Client)
-        {
-            NpcDialog* Packet = PacketHelper.NpcPacket();
-            Packet->OptionType = NpcOptionType.Finish;
-            Client.Send(Packet, Packet->Size);
-            Memory.Free(Packet);
-        }
-        public static void Input(GameClient Client, byte OptionID, string Text)
-        {
-            NpcDialog* Packet = PacketHelper.NpcPacket(Text);
-            Packet->OptionType = NpcOptionType.Input;
-            Packet->OptionID = OptionID;
-            Client.Send(Packet, Packet->Size);
-            Memory.Free(Packet);
-        }
-        public static void Option(GameClient Client, byte OptionID, string Text)
-        {
-            NpcDialog* Packet = PacketHelper.NpcPacket(Text);
-            Packet->OptionType = NpcOptionType.Option;
-            Packet->OptionID = OptionID;
-            Client.Send(Packet, Packet->Size);
-            Memory.Free(Packet);
-        }
-    }
+   
     public unsafe class PacketHelper
     {
         public static byte[] StringPayload(params string[] Messages)
@@ -95,7 +55,19 @@ namespace GameServer
             }
             return Packet;
         }
-        public static GeneralData* ConstructGeneralData()
+
+        public static GeneralData* ReAllocGeneral(void *Block)
+        {
+            int size = sizeof(GeneralData);
+            Block = Memory.ReAlloc(Block, size);
+
+            GeneralData* Packet = (GeneralData*)Block;
+            Packet->Size = (ushort)size;
+            Packet->Type = 0x3F2;
+            Packet->Timer = (uint)Environment.TickCount;
+            return Packet;
+        }
+        public static GeneralData* AllocGeneral()
         {
             int size = sizeof(GeneralData);
             GeneralData* Packet = (GeneralData*)Memory.Alloc(size);
@@ -113,20 +85,22 @@ namespace GameServer
             Packet.Size = (ushort)Size;
             Packet.Type = 0x3F6;
             Packet.UID = Entity.UID;
-            Packet.Mesh = Entity.Mesh;
+            Packet.Mesh = Entity.Model;
             Packet.Status = Entity.Status;
             Packet.GuildID = 0;
             Packet.GuildRank = 0;
             Packet.Items = new EntityItems();
-            if (Entity.Equipment.ContainsKey(ItemPosition.Headgear))
-                Packet.Items.Helmet = Entity.Equipment[ItemPosition.Headgear].ID;
-            if (Entity.Equipment.ContainsKey(ItemPosition.Armor))
-                Packet.Items.Armor = Entity.Equipment[ItemPosition.Armor].ID;
-            if (Entity.Equipment.ContainsKey(ItemPosition.Left))
-                Packet.Items.LeftHand = Entity.Equipment[ItemPosition.Left].ID;
-            if (Entity.Equipment.ContainsKey(ItemPosition.Right))
-                Packet.Items.RightHand = Entity.Equipment[ItemPosition.Right].ID;
 
+            ConquerItem Item;
+            if (Entity.Owner.TryGetEquipment(ItemPosition.Headgear, out Item))
+                Packet.Items.Helmet = Item.ID;
+            if (Entity.Owner.TryGetEquipment(ItemPosition.Armor, out Item))
+                Packet.Items.Armor = Item.ID;
+            if (Entity.Owner.TryGetEquipment(ItemPosition.Left, out Item))
+                Packet.Items.LeftHand = Item.ID;
+            if (Entity.Owner.TryGetEquipment(ItemPosition.Right, out Item))
+                Packet.Items.RightHand = Item.ID;
+           
             Packet.X = Entity.Location.X;
             Packet.Y = Entity.Location.Y;
             Packet.HairStyle = Entity.HairStyle;

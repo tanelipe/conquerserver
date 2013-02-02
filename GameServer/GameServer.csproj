@@ -73,6 +73,7 @@
     <Compile Include="Memory.cs" />
     <Compile Include="Network\GameCryptography.cs" />
     <Compile Include="Network\GameServerSocket.cs" />
+    <Compile Include="NpcDialogBuilder.cs" />
     <Compile Include="PacketQueue.cs" />
     <Compile Include="Packets\AuthMessage.cs" />
     <Compile Include="Packets\CharacterCreation.cs" />

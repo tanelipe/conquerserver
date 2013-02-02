@@ -2,117 +2,165 @@
 using System.Collections.Generic;
 using System.Drawing;
 using NetworkLibrary;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace GameServer
 {
-
     public unsafe class GameClient
     {
-        private WinsockClient Connection;
-        private GameCryptography Crypto;
-        public Entity Entity;
-        public Screen Screen;
-        public uint UID;
+        private WinsockClient Socket;
+        private GameCryptography Cryptography;
+        private PacketQueue PacketQueue;
+        private object SendLock;
 
-        public uint ActiveNPC;
+        private List<ConquerItem> Inventory;
+        private Dictionary<ItemPosition, ConquerItem> Equipment;
 
-        public LoginStatus Status;
-        private PacketQueue Queue;
-
-        public List<ConquerItem> Inventory;
-
-        public GameClient(WinsockClient Connection)
+        public GameClient(WinsockClient Socket)
         {
-            this.Connection = Connection;
-   
-            Crypto = new GameCryptography();
-            Crypto.Initialize();
+            this.Socket = Socket;
+
+            SendLock = new object();
+
+            Cryptography = new GameCryptography();
+            Cryptography.Initialize();
+
             Entity = new Entity(this);
-
-            Queue = new PacketQueue();
             Screen = new Screen(this);
-            Status = LoginStatus.Logging;
-
+            PacketQueue = new PacketQueue();
             Inventory = new List<ConquerItem>();
+
+            Equipment = new Dictionary<ItemPosition, ConquerItem>();
+            
+            Status = LoginStatus.Logging;
         }
+        
+        public Entity Entity { get; set; }
+        public Screen Screen { get; set; }
+        public uint UID { get; set; }
+        public uint ActiveNPC { get; set; }
+        public LoginStatus Status { get; set; }
 
         public PacketQueue Packets
         {
-            get { return Queue; }
-            set { Queue = value; }
+            get { return PacketQueue; }
+            set { PacketQueue = value; }
         }
-       
-   
-        public void Send(void* Packet, ushort Size)
+
+
+        public void Send(void* pPacket, ushort Size)
         {
             byte[] tmp = new byte[Size];
-            fixed (byte* pPacket = tmp)
+            fixed (byte* Packet = tmp)
             {
-                Memory.Copy(Packet, pPacket, Size);
+                Memory.Copy(pPacket, Packet, Size);
+                Send(tmp);
             }
-            Send(tmp);
+            tmp = null;
         }
-        public void SendScreen(void* Packet, ushort Size, bool IncludeSelf = false)
+        public void Send(byte[] Packet)
         {
-            if (IncludeSelf)
+            lock (SendLock)
+            {
+                Cryptography.Encrypt(Packet);
+                Socket.Send(Packet);
+            }
+        }
+        public void SendScreen(void* Packet, ushort Size, bool Self = false)
+        {
+            if (Self)
             {
                 Send(Packet, Size);
             }
 
             Entity[] Entities = Screen.Players;
-            foreach (Entity entity in Entities)
+            Parallel.ForEach(Entities, (entity) =>
             {
                 entity.Owner.Send(Packet, Size);
-            }
+            });            
         }
-        public void Send(byte[] Packet)
-        {
-            lock (this)
-            {
-                Crypto.Encrypt(Packet);
-                Connection.Send(Packet);
-            }
-        }
+
         public void Decrypt(byte[] Packet)
         {
-            Crypto.Decrypt(Packet);
+            Cryptography.Decrypt(Packet);
         }
         public void GenerateKeys(uint Key1, uint Key2)
         {
-            Crypto.GenerateKeys(Key1, Key2);
+            Cryptography.GenerateKeys(Key1, Key2);
         }
         public void Disconnect()
         {
-            Connection.Disconnect();
+            Socket.Disconnect();
+        }
+
+
+        public void RemoveFromScreen()
+        {
+            GeneralData* Packet = PacketHelper.AllocGeneral();
+
+            Packet->UID = Entity.UID;
+            Packet->DataID = GeneralDataID.RemoveEntity;
+            SendScreen(Packet, Packet->Size);
+
+            Entity[] Entities = Screen.Players;
+            Parallel.ForEach(Entities, (entity) =>
+            {
+                entity.Owner.Screen.Remove(Entity);
+            }); 
+
+            Memory.Free(Packet);
         }
 
         public void Teleport(ushort MapID, ushort X, ushort Y)
         {
-            RemoveEntity();
 
-            GeneralData* Packet = PacketHelper.ConstructGeneralData();
-            Packet->UID = Entity.UID;
-            Packet->DataID = GeneralDataID.ChangeMap;
+            if (Kernel.IsWalkable(MapID, X, Y))
+            {
 
-            Entity.Location.MapID = MapID;
-            Entity.Location.X = X;
-            Entity.Location.Y = Y;
+                GeneralData* Packet = PacketHelper.AllocGeneral();
 
-            Packet->ValueA = X;
-            Packet->ValueB = Y;
-            Packet->ValueD_High = MapID;
+                if (Entity.Location.MapID == MapID && ConquerMath.CalculateDistance(X, Y, Entity.Location.X, Entity.Location.Y, true) < Kernel.ScreenView)
+                {
+                    // Teleporting within Kernel.ScreenView distance. Don't remove entity from other players. Send "Jump" packet instead
+                    Packet->DataID = GeneralDataID.Jump;
+                    Packet->UID = Entity.UID;
+                    Packet->ValueA = Entity.Location.X;
+                    Packet->ValueB = Entity.Location.Y;
+                    Packet->ValueD_High = X;
+                    Packet->ValueD_Low = Y;
 
-            Send(Packet, Packet->Size);
-            Memory.Free(Packet);
-        }
+                    Entity.Location.MapID = MapID;
+                    Entity.Location.X = X;
+                    Entity.Location.Y = Y;
+                    SendScreen(Packet, Packet->Size, true);
+                }
+                else
+                {
+                    Packet->UID = Entity.UID;
+                    Packet->DataID = GeneralDataID.RemoveEntity;
+                    SendScreen(Packet, Packet->Size);
+                }
+                Packet = PacketHelper.ReAllocGeneral(Packet);
+                Packet->UID = Entity.UID;
+                Packet->DataID = GeneralDataID.ChangeMap;
 
-        public void RemoveEntity()
-        {
-            GeneralData* Packet = PacketHelper.ConstructGeneralData();
-            Packet->UID = Entity.UID;
-            Packet->DataID = GeneralDataID.RemoveEntity;
+                Packet->ValueA = X;
+                Packet->ValueB = Y;
+                Packet->ValueD_High = MapID;
 
-            SendScreen(Packet, Packet->Size);
-            Memory.Free(Packet);
+                Entity.Location.MapID = MapID;
+                Entity.Location.X = X;
+                Entity.Location.Y = Y;
+
+                Send(Packet, Packet->Size);
+                Memory.Free(Packet);
+            }
+            else
+            {
+                Message(string.Format("Can't teleport to MapID: {0} X {1} Y {2}.", MapID, X, Y), ChatType.Center, Color.White);
+                return;
+            }
         }
         public void Message(string Message, ChatType Type, Color Color, string From = "SYSTEM", string To = "ALLUSERS")
         {
@@ -123,7 +171,6 @@ namespace GameServer
             Send(Packet, Packet->Size);
             Memory.Free(Packet);
         }
-
         public bool AddInventory(ConquerItem Item)
         {
             lock (Inventory)
@@ -137,6 +184,38 @@ namespace GameServer
                 }
                 return false;
             }
+        }
+        public bool RemoveInventory(ConquerItem Item)
+        {
+            throw new System.Exception("not cimplmented");
+        }
+        public bool TryGetInventory(uint UID, out ConquerItem Item)
+        {
+            Item = default(ConquerItem);
+            lock (Inventory)
+            {
+                Item = Inventory.Find((item) => { return item.UID == UID; });
+                if (Item != null)
+                    return true;
+            }
+            return false;
+        }
+        public bool AddEquipment(ConquerItem Item, ItemPosition Position)
+        {
+            Item.Position = Position;
+            Equipment.ThreadSafeAdd(Position, Item);
+            Item.Send(this);
+            return true;
+        }
+        public bool TryGetEquipment(ItemPosition Position, out ConquerItem Item)
+        {
+            Item = default(ConquerItem);
+            if (Equipment.ContainsKey(Position))
+            {
+                Item = Equipment[Position];
+                return true;
+            }
+            return false;
         }
     }
 }

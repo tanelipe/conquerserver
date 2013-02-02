@@ -36,7 +36,7 @@ namespace GameServer.Database
                 Item.Effect = Convert.ToUInt16(Reader["Effect"]);
                 Item.Position = (ItemPosition)Convert.ToByte(Reader["Position"]);
 
-                Client.Entity.AddEquipment(Item);
+                Client.AddEquipment(Item, Item.Position);
             }
             Reader.Close();
         }

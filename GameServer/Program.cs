@@ -43,6 +43,9 @@ namespace GameServer
         {
             GameClient Client = Socket.Wrapper as GameClient;
             Database.SaveCharacter(Client);
+
+            Client.RemoveFromScreen();
+
             EntityManager.Remove(Client);
         }
         private static unsafe void OnClientReceive(WinsockClient Socket, byte[] Packet, int Length)

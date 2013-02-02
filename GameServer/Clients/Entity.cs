@@ -54,25 +54,18 @@ namespace GameServer
         public string Name;
         public string Spouse;
 
-        public Dictionary<ItemPosition, ConquerItem> Equipment;
-
         public uint Model { get { return (uint)(Avatar * 10000 + Mesh); } }
 
         public Entity(GameClient Owner)
         {
             this.Owner = Owner;
 
-            Equipment = new Dictionary<ItemPosition, ConquerItem>();
             StatusPoints = new StatusPoints();
             PendingUpdates = new Dictionary<ConquerStatusIDs, StatusUpdateEntry>();
             Spouse = "NONE";       
         }
 
-        public void AddEquipment(ConquerItem Item)
-        {
-            Equipment.ThreadSafeAdd(Item.Position, Item);
-            Item.Send(Owner);
-        }
+  
 
         public void BeginStatusUpdates()
         {

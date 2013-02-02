@@ -130,9 +130,13 @@ namespace GameServer.Processors
             string[] Parameters = PacketHelper.ParseChat(Packet);
 
             CommandAction Action = CommandAction.None;
-            if ((Action = CommandProcessor.Process(Client, Parameters)) != CommandAction.None)
+            if ((Action = CommandProcessor.Process(Client, Parameters))  != CommandAction.None)
             {
-                if (Action == CommandAction.ClearNpcScripts)
+                if (Action == CommandAction.Processed)
+                {
+
+                }
+                else if (Action == CommandAction.ClearNpcScripts)
                 {
                     NpcScriptEngine.Clear();
                 }
@@ -166,7 +170,19 @@ namespace GameServer.Processors
             switch (Packet->UsageID)
             {
                 case ItemUsageIDs.Ping: Client.Send(Packet, Packet->Size); break;
+                case ItemUsageIDs.Equip: HandleEquip(Client, Packet); break;
             }
+        }
+        private unsafe void HandleEquip(GameClient Client, ItemUsage* Packet)
+        {
+            Console.WriteLine(string.Format("{0} {1} {2}", Packet->ID, Packet->Location, Packet->UsageID.ToString()));
+            ConquerItem Item;
+            if (Client.TryGetInventory(Packet->ID, out Item))
+            {
+                Item.Position = (ItemPosition)Packet->Location;
+                Client.AddEquipment(Item, Item.Position);
+            }
+
         }
         private unsafe void HandleGeneralData(GameClient Client, byte* pPacket)
         {
