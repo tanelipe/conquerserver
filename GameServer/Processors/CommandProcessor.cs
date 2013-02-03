@@ -152,6 +152,22 @@ namespace GameServer.Processors
                                 Client.Entity.EndStatusUpdates();
                             }
                         } break;
+                    case "@free":
+                        {
+                            Client.Entity.StatusPoints.Free = 397;
+                            Client.Entity.StatusPoints.Dexterity = 0;
+                            Client.Entity.StatusPoints.Spirit = 0;
+                            Client.Entity.StatusPoints.Strength = 0;
+                            Client.Entity.StatusPoints.Vitality = 0;
+
+                            Client.Entity.BeginStatusUpdates();
+                            Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.StatPoints, Client.Entity.StatusPoints.Free));
+                            Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Spirit, Client.Entity.StatusPoints.Spirit));
+                            Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Agility, Client.Entity.StatusPoints.Dexterity));
+                            Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Vitality, Client.Entity.StatusPoints.Vitality));
+                            Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Strength, Client.Entity.StatusPoints.Strength));
+                            Client.Entity.EndStatusUpdates();
+                        } break;
                     case "@reload_npc":
                         {
                             return CommandAction.ClearNpcScripts;
