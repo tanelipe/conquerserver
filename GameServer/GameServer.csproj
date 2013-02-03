@@ -54,7 +54,6 @@
     <Compile Include="Clients\Entity.cs" />
     <Compile Include="Clients\GameClient.cs" />
     <Compile Include="Clients\IEntity.cs" />
-    <Compile Include="Clients\Monster.cs" />
     <Compile Include="Clients\NonPlayingCharacter.cs" />
     <Compile Include="Clients\Screen.cs" />
     <Compile Include="Database\CharacterDataCtrl.cs" />
@@ -99,7 +98,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scripting\NpcScripting.cs" />
-    <Compile Include="Scripting\ScriptEngine.cs" />
     <Compile Include="Structures\ConquerEnums.cs" />
     <Compile Include="Structures\ConquerItem.cs" />
     <Compile Include="Structures\LoginStatus.cs" />

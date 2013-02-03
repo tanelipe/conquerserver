@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using GameServer.Database;
-using System.Collections;
-using System.Collections.Generic;
 namespace GameServer.Processors
 {
     public enum CommandAction

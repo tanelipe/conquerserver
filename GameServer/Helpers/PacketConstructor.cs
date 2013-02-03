@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 namespace GameServer
 {
    
@@ -36,21 +36,6 @@ namespace GameServer
                 Memory.Copy(target, Packet->Targets, 12 * Targets.Length);
             }
             return Packet;
-            /*
-             * 
-    /*
-0 	ushort 	28 + (Target_Amount * 12)
-2 	ushort 	1105
-4 	ushort 	Target_CordX
-6 	ushort 	Target_CordY
-8 	ushort 	Skill_ID
-10 	ushort 	Skill_Level
-12 	uint 	Target_Amount * 12
-foreach 	- 	-
-16 + Pos 	uint 	Target_ID
-20 + Pos 	ulong 	Target_Damage
-end 	- 	- 
-     * */
         }
 
         public static NpcDialog* NpcPacket(string Input = "")
