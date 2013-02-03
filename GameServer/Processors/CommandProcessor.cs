@@ -83,6 +83,31 @@ namespace GameServer.Processors
                             Profiency.Level = uint.Parse(Command[2]);
                             Client.Send(&Profiency, Profiency.Size);
                         } break;
+                    case "@spell":
+                        {
+                            LearnSpell Spell = LearnSpell.Create();
+                            Spell.ID = ushort.Parse(Command[1]);
+                            Spell.Level = ushort.Parse(Command[2]);
+                            Client.Send(&Spell, Spell.Size);
+                        } break;
+                    case "@job":
+                        {
+                            byte Job = byte.Parse(Command[1]);
+ 
+                    
+
+                            Client.Entity.BeginStatusUpdates();
+                            Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Job, Job));
+                            Client.Entity.EndStatusUpdates();
+
+
+                            /*
+Trojan = [10, 15]
+Warrior = [20, 25]
+Archer = [40, 45]
+Taoist = 100 | 101 | [132 - 135] | [142 - 145]
+                             * */
+                        } break;
                     case "@reload_npc":
                         {
                             return CommandAction.ClearNpcScripts;

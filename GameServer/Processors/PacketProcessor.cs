@@ -53,12 +53,15 @@ namespace GameServer.Processors
                     case 0x3ED: HandleMovement(Client, pPacket); break;
                     case 0x3F1: HandleItemUsage(Client, pPacket); break;
                     case 0x3F2: HandleGeneralData(Client, pPacket); break;
+                    case 0x3FE: HandleAttack(Client, pPacket); break;
                     case 0x41C: HandleTransfer(Client, pPacket); break;
 
                     case 0x7EF: 
                     case 0x7F0:
                         HandleNpcDialogue(Client, pPacket); 
                         break;
+                    default:
+                        Client.Send(Packet);break;
                     
                 }
             }
@@ -78,7 +81,27 @@ namespace GameServer.Processors
                 Process(Client, Footer);
             }
         }
-   
+        private void HandleAttack(GameClient Client, byte* pPacket)
+        {
+            AttackRequest* Request = (AttackRequest*)pPacket;
+            if (Request->AttackType == AttackTypes.Magic)
+            {
+                Request->Decrypt();
+                if (Request->SpellID == 1045)
+                {
+                    AttackTargetPacket* Packet = PacketHelper.AttackPacket();
+                    Packet->UID = Client.Entity.UID;
+                    Packet->SpellID = 1045;
+                    Packet->SpellLevel = 4;
+                    Packet->X = Request->TargetX;
+                    Packet->Y = Request->TargetY;
+                    Client.SendScreen(Packet, Packet->Size, true);
+                    Memory.Free(Packet);
+                }
+            }
+            
+        }
+
         private void HandleNpcDialogue(GameClient Client, byte* pPacket)
         {
             PacketHeader* Header = (PacketHeader*)pPacket;
@@ -171,7 +194,35 @@ namespace GameServer.Processors
             {
                 case ItemUsageIDs.Ping: Client.Send(Packet, Packet->Size); break;
                 case ItemUsageIDs.Equip: HandleEquip(Client, Packet); break;
+                case ItemUsageIDs.UnequipItem: HandleUnequip(Client, Packet); break;
             }
+        }
+        private unsafe void HandleUnequip(GameClient Client, ItemUsage* Packet)
+        {
+            Console.WriteLine(string.Format("{0} {1} {2}", Packet->ID, Packet->Location, Packet->UsageID.ToString()));
+            
+            ItemPosition Position = (ItemPosition)Packet->Location;
+            ConquerItem Item;
+
+            if (Client.TryGetEquipment(Position, out Item))
+            {
+                if (Client.AddInventory(Item))
+                {
+                    Client.Unequip(Item, Position);
+                }
+                else
+                {
+                    Client.Message("Inventory is full!", ChatType.Top, Color.Red);
+                }
+            }
+            
+          /*
+            if (Client.TryGetInventory(Packet->ID, out Item))
+            {
+                Item.Position = (ItemPosition)Packet->Location;
+                Client.AddEquipment(Item, Item.Position);
+            }
+            */
         }
         private unsafe void HandleEquip(GameClient Client, ItemUsage* Packet)
         {
@@ -181,8 +232,8 @@ namespace GameServer.Processors
             {
                 Item.Position = (ItemPosition)Packet->Location;
                 Client.AddEquipment(Item, Item.Position);
+                Client.RemoveInventory(Item);
             }
-
         }
         private unsafe void HandleGeneralData(GameClient Client, byte* pPacket)
         {

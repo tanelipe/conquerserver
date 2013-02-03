@@ -52,6 +52,7 @@ namespace GameServer.Database
         public void SaveCharacter(GameClient Client)
         {
             CharacterCtrl.UpdateCharacter(Client);
+            EquipmentCtrl.SaveEquipment(Client);
             LocationCtrl.UpdateLocation(Client);
         }
         public void CreateCharacter(GameClient Client, ushort Model, ushort Class, string Name)

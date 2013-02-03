@@ -117,7 +117,6 @@ namespace GameServer
 
             if (Kernel.IsWalkable(MapID, X, Y))
             {
-
                 GeneralData* Packet = PacketHelper.AllocGeneral();
 
                 if (Entity.Location.MapID == MapID && ConquerMath.CalculateDistance(X, Y, Entity.Location.X, Entity.Location.Y, true) < Kernel.ScreenView)
@@ -187,7 +186,17 @@ namespace GameServer
         }
         public bool RemoveInventory(ConquerItem Item)
         {
-            throw new System.Exception("not cimplmented");
+            bool Removed = false;
+            lock (Inventory)
+            {
+                Removed = Inventory.Remove(Item);
+                if (Removed)
+                {
+                    Item.RemoveInventory(this);
+                }
+   
+            }
+            return Removed;
         }
         public bool TryGetInventory(uint UID, out ConquerItem Item)
         {
@@ -216,6 +225,12 @@ namespace GameServer
                 return true;
             }
             return false;
+        }
+        public void Unequip(ConquerItem Item, ItemPosition Position)
+        {
+            Item.Position = Position;
+            Item.Unequip(this);
+            Equipment.ThreadSafeRemove(Position);
         }
     }
 }

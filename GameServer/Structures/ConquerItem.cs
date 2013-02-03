@@ -69,5 +69,26 @@ namespace GameServer
 
             Client.Send(&Packet, Packet.Size);
         }
+        public void Unequip(GameClient Client)
+        {
+            ItemUsage Packet = new ItemUsage();
+            Packet.Size = (ushort)sizeof(ItemUsage);
+            Packet.Type = 0x3F1;
+            Packet.Timer = (uint)System.Environment.TickCount;
+            Packet.UsageID = ItemUsageIDs.UnequipItem;
+            Packet.Location = (uint)Position;
+            Packet.ID = UID;
+            Client.Send(&Packet, Packet.Size);
+        }
+        public void RemoveInventory(GameClient Client)
+        {
+            ItemUsage Packet = new ItemUsage();
+            Packet.Size = (ushort)sizeof(ItemUsage);
+            Packet.Type = 0x3F1;
+            Packet.Timer = (uint)System.Environment.TickCount;
+            Packet.UsageID = ItemUsageIDs.RemoveInventory;
+            Packet.ID = UID;
+            Client.Send(&Packet, Packet.Size);
+        }
     }
 }

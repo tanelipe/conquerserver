@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assembler.cs" />
     <Compile Include="Database\ItemsCtrl.cs" />
     <Compile Include="EntityManager.cs" />
     <Compile Include="Clients\Entity.cs" />
@@ -75,6 +76,8 @@
     <Compile Include="Network\GameServerSocket.cs" />
     <Compile Include="NpcDialogBuilder.cs" />
     <Compile Include="PacketQueue.cs" />
+    <Compile Include="Packets\AttackRequest.cs" />
+    <Compile Include="Packets\AttackTarget.cs" />
     <Compile Include="Packets\AuthMessage.cs" />
     <Compile Include="Packets\CharacterCreation.cs" />
     <Compile Include="Packets\CharacterInformation.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="Packets\ItemInformation.cs" />
     <Compile Include="Packets\ItemUsage.cs" />
     <Compile Include="Packets\LearnProfiency.cs" />
+    <Compile Include="Packets\LearnSpell.cs" />
     <Compile Include="Packets\NpcDialog.cs" />
     <Compile Include="Packets\NpcInteraction.cs" />
     <Compile Include="Packets\NpcSpawn.cs" />
