@@ -93,7 +93,16 @@
     <Compile Include="Packets\NpcSpawn.cs" />
     <Compile Include="Packets\PacketHeader.cs" />
     <Compile Include="Packets\StatusUpdate.cs" />
-    <Compile Include="Processors\CommandProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\AttackProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\ChatProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\CommandProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\CreateCharacterProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\GeneralDataProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\IPacketProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\ItemUsageProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\LoginTransferProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\MovementProcessor.cs" />
+    <Compile Include="Processors\Packet Processors\NpcProcessor.cs" />
     <Compile Include="Processors\PacketProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

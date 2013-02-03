@@ -45,21 +45,5 @@ namespace GameServer
             }
             return ReAlloc.ToPointer();      
         }
-        // Heap API flags
-        const int HEAP_ZERO_MEMORY = 0x00000008;
-        // Heap API functions
-        [DllImport("kernel32")]
-        static extern int GetProcessHeap();
-        [DllImport("kernel32")]
-        static extern void* HeapAlloc(int hHeap, int flags, int size);
-        [DllImport("kernel32")]
-        static extern bool HeapFree(int hHeap, int flags, void* block);
-        [DllImport("kernel32")]
-        static extern void* HeapReAlloc(int hHeap, int flags,
-           void* block, int size);
-        [DllImport("kernel32")]
-        static extern int HeapSize(int hHeap, int flags, void* block);
-        [DllImport("Kernel32")]
-        static extern int GetLastError();
     }
 }
