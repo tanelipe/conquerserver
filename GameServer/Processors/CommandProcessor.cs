@@ -79,14 +79,14 @@ namespace GameServer.Processors
                             LearnProfiency Profiency = LearnProfiency.Create();
                             Profiency.ID = uint.Parse(Command[1]);
                             Profiency.Level = uint.Parse(Command[2]);
-                            Client.Send(&Profiency, Profiency.Size);
+                            Client.LearnProfiency(Profiency);                          
                         } break;
                     case "@spell":
                         {
                             LearnSpell Spell = LearnSpell.Create();
                             Spell.ID = ushort.Parse(Command[1]);
                             Spell.Level = ushort.Parse(Command[2]);
-                            Client.Send(&Spell, Spell.Size);
+                            Client.LearnSpell(Spell);
                         } break;
                     case "@job":
                         {

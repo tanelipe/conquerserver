@@ -13,6 +13,7 @@ namespace GameServer
         public override void Execute(GameClient Client, byte* pPacket)
         {
             GeneralData* Packet = (GeneralData*)pPacket;
+            System.Console.WriteLine(Packet->DataID.ToString());
             switch (Packet->DataID)
             {
                 case GeneralDataID.SetLocation: HandleSetLocation(Client, Packet); break;
@@ -22,11 +23,21 @@ namespace GameServer
                 case GeneralDataID.ChangeAngle: HandleChangeAngle(Client, Packet); break;
                 case GeneralDataID.EnterPortal: HandlePortal(Client, Packet); break;
                 case GeneralDataID.ChangeAvatar: HandleChangeAvatar(Client, Packet); break;
+                case GeneralDataID.ConfirmSpells: HandleSpells(Client, Packet); break;
                 default:
                     Client.Send(Packet, Packet->Size);
                     break;
             }
         }
+
+        private void HandleSpells(GameClient Client, GeneralData* Packet)
+        {
+            Database.LoadSpells(Client);
+            Database.LoadProfiencys(Client);
+
+            Client.Send(Packet, Packet->Size);
+        }
+
         private void HandleChangeAvatar(GameClient Client, GeneralData* Packet)
         {
             if (Client.Entity.Money >= 500)
@@ -37,7 +48,6 @@ namespace GameServer
                 Client.Entity.Avatar = (byte)Packet->ValueD_High;
 
                 Client.Entity.EndStatusUpdates();
-
             }
         }
         private void HandlePortal(GameClient Client, GeneralData* Packet)

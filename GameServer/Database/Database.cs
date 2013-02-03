@@ -7,10 +7,12 @@ namespace GameServer.Database
         private SQLiteConnection Connection;
         private CharacterDataCtrl CharacterCtrl;
         private LocationDataCtrl LocationCtrl;
+        private ProfiencyCtrl ProfiencyCtrl;
         private EquipmentCtrl EquipmentCtrl;
         private ItemTypeCtrl ItemTypeCtrl;
         private NpcSpawnCtrl NpcSpawnCtrl;
-        private ItemsCtrl ItemCtrl;
+        private SpellDataCtrl SpellCtrl;
+        private ItemsCtrl ItemCtrl;   
 
         public DatabaseManager()
         {
@@ -23,6 +25,8 @@ namespace GameServer.Database
             ItemTypeCtrl = new ItemTypeCtrl(Connection);
             NpcSpawnCtrl = new NpcSpawnCtrl(Connection);
             ItemCtrl = new ItemsCtrl(Connection);
+            SpellCtrl = new SpellDataCtrl(Connection);
+            ProfiencyCtrl = new ProfiencyCtrl(Connection);
 
             NpcSpawnCtrl.Load();
         }
@@ -49,6 +53,8 @@ namespace GameServer.Database
             CharacterCtrl.UpdateCharacter(Client);
             EquipmentCtrl.SaveEquipment(Client);
             LocationCtrl.UpdateLocation(Client);
+            SpellCtrl.SaveSpells(Client);
+            ProfiencyCtrl.SaveProfiencys(Client);
         }
         public void CreateCharacter(GameClient Client, ushort Model, ushort Class, string Name)
         {
@@ -60,6 +66,14 @@ namespace GameServer.Database
             bool Result = CharacterCtrl.GetCharacterData(Client);
             Result &= LocationCtrl.GetLocation(Client);
             return Result;
+        }
+        public void LoadSpells(GameClient Client)
+        {
+            SpellCtrl.LoadSpells(Client);
+        }
+        public void LoadProfiencys(GameClient Client)
+        {
+            ProfiencyCtrl.LoadProfiencys(Client);
         }
     }
 }

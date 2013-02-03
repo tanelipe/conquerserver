@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="Assembler.cs" />
     <Compile Include="Database\ItemsCtrl.cs" />
+    <Compile Include="Database\ProfiencyCtrl.cs" />
+    <Compile Include="Database\SpellDataCtrl.cs" />
     <Compile Include="EntityManager.cs" />
     <Compile Include="Clients\Entity.cs" />
     <Compile Include="Clients\GameClient.cs" />

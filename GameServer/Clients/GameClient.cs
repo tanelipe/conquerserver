@@ -1,8 +1,6 @@
-﻿using System.Collections;
+﻿using NetworkLibrary;
 using System.Collections.Generic;
 using System.Drawing;
-using NetworkLibrary;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace GameServer
@@ -15,7 +13,10 @@ namespace GameServer
         private object SendLock;
 
         private List<ConquerItem> Inventory;
+        
+
         private Dictionary<ItemPosition, ConquerItem> Equipment;
+        
 
         public GameClient(WinsockClient Socket)
         {
@@ -29,7 +30,10 @@ namespace GameServer
             Entity = new Entity(this);
             Screen = new Screen(this);
             PacketQueue = new PacketQueue();
+
             Inventory = new List<ConquerItem>();
+            Profiencys = new List<LearnProfiency>();
+            Spells = new List<LearnSpell>();
 
             Equipment = new Dictionary<ItemPosition, ConquerItem>();
             
@@ -41,6 +45,9 @@ namespace GameServer
         public uint UID { get; set; }
         public uint ActiveNPC { get; set; }
         public LoginStatus Status { get; set; }
+
+        public List<LearnProfiency> Profiencys { get; set; }
+        public List<LearnSpell> Spells { get; set; }
 
         public PacketQueue Packets
         {
@@ -93,7 +100,6 @@ namespace GameServer
         {
             Socket.Disconnect();
         }
-
 
         public void RemoveFromScreen()
         {
@@ -231,6 +237,23 @@ namespace GameServer
             Item.Position = Position;
             Item.Unequip(this);
             Equipment.ThreadSafeRemove(Position);
+        }
+
+        public void LearnSpell(LearnSpell Spell)
+        {
+            if (!Spells.Contains(Spell))
+            {
+                Spells.Add(Spell);
+                Send(&Spell, Spell.Size);                
+            }
+        }
+        public void LearnProfiency(LearnProfiency Profiency)
+        {
+            if (!Profiencys.Contains(Profiency))
+            {
+                Profiencys.Add(Profiency);
+                Send(&Profiency, Profiency.Size);
+            }
         }
     }
 }
