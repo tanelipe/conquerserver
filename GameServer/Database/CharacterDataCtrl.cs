@@ -11,6 +11,8 @@ namespace GameServer.Database
 
         }
 
+
+
         public void CreateCharacter(GameClient Client, ushort Model, ushort Class, string Name)
         {
             Client.Entity.UID = 1000000 + Client.UID;
@@ -27,11 +29,11 @@ namespace GameServer.Database
             Command.Parameters.Add("@HairStyle", DbType.Int32).Value = 310;
             Command.Parameters.Add("@Gold", DbType.Int32).Value = 0;
             Command.Parameters.Add("@Experience", DbType.Int32).Value = 0;
-            Command.Parameters.Add("@Strength", DbType.Int32).Value = 1;
-            Command.Parameters.Add("@Dexterity", DbType.Int32).Value = 2;
-            Command.Parameters.Add("@Vitality", DbType.Int32).Value = 3;
-            Command.Parameters.Add("@Spirit", DbType.Int32).Value = 4;
-            Command.Parameters.Add("@StatPoints", DbType.Int32).Value = 0;
+            Command.Parameters.Add("@Strength", DbType.Int32).Value = 0;
+            Command.Parameters.Add("@Dexterity", DbType.Int32).Value = 0;
+            Command.Parameters.Add("@Vitality", DbType.Int32).Value = 0;
+            Command.Parameters.Add("@Spirit", DbType.Int32).Value = 0;
+            Command.Parameters.Add("@StatPoints", DbType.Int32).Value = 397;
             Command.Parameters.Add("@HitPoints", DbType.Int32).Value = 10;
             Command.Parameters.Add("@ManaPoints", DbType.Int32).Value = 0;
             Command.Parameters.Add("@PKPoints", DbType.Int32).Value = 0;

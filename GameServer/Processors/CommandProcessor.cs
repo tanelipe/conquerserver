@@ -47,10 +47,10 @@ namespace GameServer.Processors
                             ushort Y = ushort.Parse(Command[3]);
 
                             Client.Teleport(MapID, X, Y);
-
                         } break;
                     case "@gold":
                         {
+
                             Client.Entity.Money = uint.Parse(Command[1]);
                         } break;
                     case "@item":
@@ -90,21 +90,67 @@ namespace GameServer.Processors
                         } break;
                     case "@job":
                         {
-                            byte Job = byte.Parse(Command[1]);
- 
-                    
+                            Client.Entity.Class = byte.Parse(Command[1]);
 
                             Client.Entity.BeginStatusUpdates();
-                            Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Job, Job));
+                            Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Job, Client.Entity.Class));
                             Client.Entity.EndStatusUpdates();
+                        } break;
+                    case "@str":
+                        {
+                            byte Strength = byte.Parse(Command[1]);
+                            if (Strength <= Client.Entity.StatusPoints.Free)
+                            {
+                                Client.Entity.StatusPoints.Strength += Strength;
+                                Client.Entity.StatusPoints.Free -= Strength;
 
+                                Client.Entity.BeginStatusUpdates();
+                                Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.StatPoints, Client.Entity.StatusPoints.Free));
+                                Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Strength, Client.Entity.StatusPoints.Strength));
+                                Client.Entity.EndStatusUpdates();
+                            }
+                        } break;
+                    case "@vit":
+                        {
+                            byte Vitality = byte.Parse(Command[1]);
+                            if (Vitality <= Client.Entity.StatusPoints.Free)
+                            {
+                                Client.Entity.StatusPoints.Vitality += Vitality;
+                                Client.Entity.StatusPoints.Free -= Vitality;
 
-                            /*
-Trojan = [10, 15]
-Warrior = [20, 25]
-Archer = [40, 45]
-Taoist = 100 | 101 | [132 - 135] | [142 - 145]
-                             * */
+                                Client.Entity.BeginStatusUpdates();
+                                Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.StatPoints, Client.Entity.StatusPoints.Free));
+                                Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Vitality, Client.Entity.StatusPoints.Vitality));
+                                Client.Entity.EndStatusUpdates();
+                            }
+                        } break;
+                    case "@dex":
+                        {
+                            byte Dexterity = byte.Parse(Command[1]);
+                            if (Dexterity <= Client.Entity.StatusPoints.Free)
+                            {
+                                Client.Entity.StatusPoints.Dexterity += Dexterity;
+                                Client.Entity.StatusPoints.Free -= Dexterity;
+
+                                Client.Entity.BeginStatusUpdates();
+                                Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.StatPoints, Client.Entity.StatusPoints.Free));
+                                Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Agility, Client.Entity.StatusPoints.Dexterity));
+                                Client.Entity.EndStatusUpdates();
+                            }
+                        } break;
+                    case "@spi":
+                        {
+                            byte Spirit = byte.Parse(Command[1]);
+                            if (Spirit <= Client.Entity.StatusPoints.Free)
+                            {
+                                Client.Entity.StatusPoints.Spirit += Spirit;
+                                Client.Entity.StatusPoints.Free -= Spirit;
+
+                                Client.Entity.BeginStatusUpdates();
+                                Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.StatPoints, Client.Entity.StatusPoints.Free));
+                                Client.Entity.AddStatusUpdate(StatusUpdateEntry.Create(ConquerStatusIDs.Spirit, Client.Entity.StatusPoints.Spirit));
+                                Client.Entity.EndStatusUpdates();
+                            }
                         } break;
                     case "@reload_npc":
                         {
